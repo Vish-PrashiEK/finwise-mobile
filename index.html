@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="hi" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#090d16" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="FinWise" />
+  <link rel="manifest" href="manifest.json" />
+  <title>FinWise - Mobile Expense & Balance App</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="mobile-app-shell">
+    <!-- Top Mobile Header -->
+    <header class="mobile-header">
+      <div class="header-user">
+        <div class="header-avatar">₹</div>
+        <div class="header-title-box">
+          <h1>FinWise Mobile</h1>
+          <span id="current-month-label">October 2026 • Real-Time</span>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button class="icon-btn" id="btn-theme-toggle" title="Theme">☀️</button>
+        <button class="icon-btn" id="btn-export-quick" title="Export CSV">📥</button>
+      </div>
+    </header>
+
+    <!-- Scrollable Main Content -->
+    <main class="mobile-content">
+      <!-- ================= TAB 1: HOME ================= -->
+      <section id="tab-home" class="tab-view active">
+        <!-- Main Net Worth Card -->
+        <div class="net-worth-card">
+          <div class="nw-top">
+            <span class="nw-label">Kul Real-Time Balance</span>
+            <span class="nw-tag">Live Synced</span>
+          </div>
+          <div class="nw-balance" id="home-total-balance">₹0</div>
+          <div class="nw-stats-row">
+            <div class="nw-stat-item">
+              <span class="nw-stat-title">Kamai (In)</span>
+              <span class="nw-stat-val inc" id="home-total-income">+₹0</span>
+            </div>
+            <div class="nw-stat-item">
+              <span class="nw-stat-title">Kharcha (Out)</span>
+              <span class="nw-stat-val exp" id="home-total-expense">-₹0</span>
+            </div>
+            <div class="nw-stat-item">
+              <span class="nw-stat-title">Nivesh (Invest)</span>
+              <span class="nw-stat-val inv" id="home-total-invested">₹0</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Accounts Horizontal Carousel -->
+        <div class="section-bar">
+          <h2><span>🏦</span> Aapke Khate (Accounts)</h2>
+          <button class="section-bar-link" onclick="window.app.switchTab('accounts')">Sabhi Dekhein</button>
+        </div>
+        <div class="accounts-carousel" id="home-accounts-carousel">
+          <!-- Rendered by JS -->
+        </div>
+
+        <!-- Quick Insights Banners -->
+        <div class="section-bar" style="margin-top:20px;">
+          <h2><span>⚡</span> Quick Insights</h2>
+        </div>
+        <div id="home-insights-container">
+          <!-- Rendered by JS -->
+        </div>
+
+        <!-- Recent Transactions -->
+        <div class="section-bar" style="margin-top:20px;">
+          <h2><span>🕒</span> Haal Hi Ki Entries</h2>
+          <button class="section-bar-link" onclick="window.app.switchTab('history')">History</button>
+        </div>
+        <div class="tx-list" id="home-recent-tx">
+          <!-- Rendered by JS -->
+        </div>
+      </section>
+
+      <!-- ================= TAB 2: ANALYTICS ================= -->
+      <section id="tab-analytics" class="tab-view">
+        <div class="section-bar" style="margin-top:0;">
+          <h2><span>📊</span> Spending & Nivesh Analysis</h2>
+        </div>
+
+        <!-- 3 Highlight Cards -->
+        <div id="analytics-highlight-cards">
+          <!-- Rendered by JS -->
+        </div>
+
+        <!-- Category Expense Donut -->
+        <div class="analytics-card">
+          <div class="analytics-card-title">
+            <span>🛒 Kharcha Kahan Hua? (Categories)</span>
+          </div>
+          <div id="analytics-chart-expense"></div>
+        </div>
+
+        <!-- Investment Donut -->
+        <div class="analytics-card">
+          <div class="analytics-card-title">
+            <span>🚀 Nivesh Asset Allocation (Portfolio)</span>
+          </div>
+          <div id="analytics-chart-invest"></div>
+        </div>
+
+        <!-- 50/30/20 Budget Rule -->
+        <div class="analytics-card">
+          <div class="analytics-card-title">
+            <span>🎯 50 / 30 / 20 Budget Rule</span>
+          </div>
+          <div id="analytics-budget-meter"></div>
+        </div>
+
+        <!-- Daily Trend -->
+        <div class="analytics-card">
+          <div class="analytics-card-title">
+            <span>📈 Daily Trend (Spend vs Invest)</span>
+          </div>
+          <div id="analytics-chart-trend"></div>
+        </div>
+      </section>
+
+      <!-- ================= TAB 3: ACCOUNTS ================= -->
+      <section id="tab-accounts" class="tab-view">
+        <div class="section-bar" style="margin-top:0;">
+          <h2><span>💳</span> Sabhi Bank & Wallets</h2>
+          <button class="section-bar-link" id="btn-open-add-acc">+ Naya Bank</button>
+        </div>
+
+        <div class="tx-list" id="accounts-full-list" style="margin-bottom: 20px;">
+          <!-- Rendered by JS -->
+        </div>
+
+        <!-- Quick Transfer Banner -->
+        <div class="highlight-insight-banner invest-banner" style="cursor:pointer;" id="banner-quick-transfer">
+          <div class="hb-icon">🔁</div>
+          <div class="hb-body">
+            <div class="hb-title">Quick Transfer</div>
+            <div class="hb-main">ATM Withdrawal ya Bank-to-Bank Transfer</div>
+            <div class="hb-sub">Ek bank se minus aur dusre me plus sirf 1-tap me karein</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= TAB 4: HISTORY ================= -->
+      <section id="tab-history" class="tab-view">
+        <div class="section-bar" style="margin-top:0;">
+          <h2><span>📜</span> Transaction History</h2>
+        </div>
+
+        <input
+          type="text"
+          id="history-search"
+          class="drawer-input"
+          placeholder="🔍 Search grocery, salary, ref..."
+          style="margin-bottom:10px;"
+        />
+
+        <div style="display:flex; gap:6px; margin-bottom:14px; overflow-x:auto;">
+          <select id="history-filter-type" class="drawer-select" style="flex:1;">
+            <option value="all">Sabhi Types</option>
+            <option value="Expense">🔻 Kharcha</option>
+            <option value="Income">🟢 Kamai</option>
+            <option value="Investment">📈 Nivesh</option>
+            <option value="Transfer">🔁 Transfer</option>
+          </select>
+          <select id="history-filter-account" class="drawer-select" style="flex:1;">
+            <option value="all">Sabhi Accounts</option>
+          </select>
+        </div>
+
+        <div class="tx-list" id="history-full-list">
+          <!-- Rendered by JS -->
+        </div>
+      </section>
+    </main>
+
+    <!-- Bottom Navigation Bar (Thumb-Friendly Native Bar) -->
+    <nav class="mobile-nav-bar">
+      <button class="nav-tab-btn active" data-tab="home">
+        <span class="nav-tab-icon">🏠</span>
+        <span>Home</span>
+      </button>
+
+      <button class="nav-tab-btn" data-tab="analytics">
+        <span class="nav-tab-icon">📊</span>
+        <span>Analysis</span>
+      </button>
+
+      <!-- Center FAB (Fast Entry Button) -->
+      <div class="nav-center-fab" id="btn-open-fast-entry">
+        <div class="fab-circle">+</div>
+        <span class="fab-label">FAST ADD</span>
+      </div>
+
+      <button class="nav-tab-btn" data-tab="accounts">
+        <span class="nav-tab-icon">🏦</span>
+        <span>Khate</span>
+      </button>
+
+      <button class="nav-tab-btn" data-tab="history">
+        <span class="nav-tab-icon">📜</span>
+        <span>History</span>
+      </button>
+    </nav>
+
+    <!-- ======================================================== -->
+    <!-- FAST ENTRY BOTTOM SHEET (THE LIGHTNING SPEED LOGGER)     -->
+    <!-- ======================================================== -->
+    <div class="fast-entry-drawer" id="fast-entry-drawer">
+      <div class="drawer-sheet">
+        <div class="drawer-grabber"></div>
+        <div class="drawer-header">
+          <h2 class="drawer-title" id="drawer-form-title">⚡ Fast Transaction</h2>
+          <div class="drawer-close" id="btn-close-drawer">&times;</div>
+        </div>
+
+        <form id="form-fast-entry">
+          <!-- 1. Type Selector (Expense / Income / Investment / Transfer) -->
+          <div class="fast-type-selector">
+            <button type="button" class="fast-type-btn active type-exp" data-type="Expense">
+              🔻 Kharcha
+            </button>
+            <button type="button" class="fast-type-btn" data-type="Income">
+              🟢 Kamai
+            </button>
+            <button type="button" class="fast-type-btn" data-type="Investment">
+              📈 Nivesh
+            </button>
+            <button type="button" class="fast-type-btn" data-type="Transfer">
+              🔁 Transfer
+            </button>
+          </div>
+
+          <!-- 2. Giant Amount Input -->
+          <div class="giant-amount-box">
+            <span class="currency-sym">₹</span>
+            <input
+              type="number"
+              id="fast-amount"
+              class="giant-amount-input"
+              placeholder="0"
+              step="any"
+              min="1"
+              inputmode="decimal"
+              required
+            />
+          </div>
+
+          <!-- Quick Amount Tap Pills -->
+          <div class="quick-pills-row">
+            <span class="quick-pill" data-amt="50">+₹50</span>
+            <span class="quick-pill" data-amt="100">+₹100</span>
+            <span class="quick-pill" data-amt="200">+₹200</span>
+            <span class="quick-pill" data-amt="500">+₹500</span>
+            <span class="quick-pill" data-amt="1000">+₹1,000</span>
+            <span class="quick-pill" data-amt="2000">+₹2,000</span>
+          </div>
+
+          <!-- 3. Account Selector (Single or Transfer) -->
+          <div id="box-single-account">
+            <label class="drawer-field-label">Konse Account Se Katenge?</label>
+            <div class="account-pills-row" id="fast-acc-pills">
+              <!-- Rendered by JS -->
+            </div>
+          </div>
+
+          <div id="box-transfer-account" style="display:none;" class="transfer-row-container">
+            <div>
+              <label class="drawer-field-label">From (-) Bank</label>
+              <select id="fast-transfer-from" class="drawer-select"></select>
+            </div>
+            <div>
+              <label class="drawer-field-label">To (+) Bank</label>
+              <select id="fast-transfer-to" class="drawer-select"></select>
+            </div>
+          </div>
+
+          <!-- 4. Quick Category Tiles Grid (1-Tap Selection) -->
+          <div id="box-category-tiles">
+            <label class="drawer-field-label">Category Chunein (1-Tap)</label>
+            <div class="category-tiles-grid" id="fast-cat-grid">
+              <!-- Rendered by JS -->
+            </div>
+          </div>
+
+          <!-- 5. Description & Payment Mode (Optional / Auto-filled) -->
+          <div style="display:grid; grid-template-columns: 2fr 1fr; gap:8px;">
+            <input
+              type="text"
+              id="fast-desc"
+              class="drawer-input"
+              placeholder="Vivaran / Description"
+              required
+            />
+            <select id="fast-mode" class="drawer-select" style="margin-bottom:16px;">
+              <option value="UPI">UPI</option>
+              <option value="Cash">Cash</option>
+              <option value="NetBanking">NetBank</option>
+              <option value="Card">Card</option>
+            </select>
+          </div>
+
+          <!-- 6. Big Save Button -->
+          <button type="submit" class="btn-big-save" id="btn-submit-fast">
+            <span>⚡ JODEIN (Instant Save)</span>
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Modal: Add New Account -->
+    <div class="fast-entry-drawer" id="modal-add-acc">
+      <div class="drawer-sheet">
+        <div class="drawer-grabber"></div>
+        <div class="drawer-header">
+          <h2 class="drawer-title">🏦 Naya Bank Account Jodein</h2>
+          <div class="drawer-close" id="btn-close-acc-modal">&times;</div>
+        </div>
+
+        <form id="form-add-acc">
+          <label class="drawer-field-label">Bank / Wallet Ka Naam</label>
+          <input
+            type="text"
+            id="new-acc-name"
+            class="drawer-input"
+            placeholder="e.g. HDFC Bank, ICICI, Paytm"
+            required
+          />
+
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+            <div>
+              <label class="drawer-field-label">Type</label>
+              <select id="new-acc-type" class="drawer-select" style="margin-bottom:16px;">
+                <option value="Savings Bank">Savings Bank</option>
+                <option value="Current Bank">Current Bank</option>
+                <option value="Cash Wallet">Cash Wallet</option>
+              </select>
+            </div>
+            <div>
+              <label class="drawer-field-label">Color</label>
+              <input type="color" id="new-acc-color" value="#6366f1" class="drawer-input" style="height:44px; padding:4px;" />
+            </div>
+          </div>
+
+          <label class="drawer-field-label">Opening Balance (₹)</label>
+          <input
+            type="number"
+            id="new-acc-opening"
+            class="drawer-input"
+            placeholder="0"
+            value="0"
+          />
+
+          <button type="submit" class="btn-big-save">
+            <span>+ Account Shamil Karein</span>
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Mobile Toast -->
+    <div class="mobile-toast" id="mobile-toast">
+      <span>✅</span> <span id="toast-text">Saved</span>
+    </div>
+  </div>
+
+  <script src="chart-engine.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

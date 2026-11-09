@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?mso-application progid="Excel.Sheet"?>
+<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:o="urn:schemas-microsoft-com:office:office"
+ xmlns:x="urn:schemas-microsoft-com:office:excel"
+ xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:html="http://www.w3.org/TR/REC-html40">
+ <Styles>
+  <Style ss:ID="Default" ss:Name="Normal">
+   <Alignment ss:Vertical="Center"/>
+   <Font ss:FontName="Calibri" x:Family="Swiss" ss:Size="11" ss:Color="#000000"/>
+  </Style>
+  <Style ss:ID="Header">
+   <Alignment ss:Horizontal="Center" ss:Vertical="Center"/>
+   <Borders>
+    <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#333333"/>
+    <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#333333"/>
+    <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#333333"/>
+    <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#333333"/>
+   </Borders>
+   <Font ss:FontName="Calibri" ss:Size="11" ss:Color="#FFFFFF" ss:Bold="1"/>
+   <Interior ss:Color="#1E293B" ss:Pattern="Solid"/>
+  </Style>
+  <Style ss:ID="TitleStyle">
+   <Font ss:FontName="Calibri" ss:Size="16" ss:Color="#1E293B" ss:Bold="1"/>
+  </Style>
+  <Style ss:ID="Currency">
+   <NumberFormat ss:Format="&#34;₹&#34;#,##0.00"/>
+  </Style>
+  <Style ss:ID="CurrencyBold">
+   <Font ss:FontName="Calibri" ss:Size="11" ss:Color="#000000" ss:Bold="1"/>
+   <NumberFormat ss:Format="&#34;₹&#34;#,##0.00"/>
+  </Style>
+  <Style ss:ID="Credits">
+   <Font ss:FontName="Calibri" ss:Size="11" ss:Color="#059669" ss:Bold="1"/>
+   <NumberFormat ss:Format="&#34;₹&#34;#,##0.00"/>
+  </Style>
+  <Style ss:ID="Debits">
+   <Font ss:FontName="Calibri" ss:Size="11" ss:Color="#DC2626" ss:Bold="1"/>
+   <NumberFormat ss:Format="&#34;₹&#34;#,##0.00"/>
+  </Style>
+  <Style ss:ID="TotalRow">
+   <Font ss:FontName="Calibri" ss:Size="11" ss:Color="#000000" ss:Bold="1"/>
+   <Interior ss:Color="#F1F5F9" ss:Pattern="Solid"/>
+   <NumberFormat ss:Format="&#34;₹&#34;#,##0.00"/>
+  </Style>
+ </Styles>
+ <Worksheet ss:Name="October 2026">
+  <Table ss:ExpandedColumnCount="9" x:FullColumns="1" x:FullRows="1" ss:DefaultRowHeight="20">
+   <Column ss:Width="30"/>
+   <Column ss:Width="120"/>
+   <Column ss:Width="110"/>
+   <Column ss:Width="110"/>
+   <Column ss:Width="110"/>
+   <Column ss:Width="130"/>
+   <Column ss:Width="20"/>
+   <Column ss:Width="250"/>
+
+   <!-- Row 1: Title -->
+   <Row ss:Height="30">
+    <Cell ss:Index="2" ss:StyleID="TitleStyle"><Data ss:Type="String">October 2026 Automated Balance Sheet</Data></Cell>
+   </Row>
+
+   <!-- Row 2: Empty -->
+   <Row></Row>
+
+   <!-- Row 3: Account Balance Headers -->
+   <Row ss:Height="24">
+    <Cell ss:Index="2" ss:StyleID="Header"><Data ss:Type="String">Account Name</Data></Cell>
+    <Cell ss:StyleID="Header"><Data ss:Type="String">Opening Balance</Data></Cell>
+    <Cell ss:StyleID="Header"><Data ss:Type="String">Total Credits (+)</Data></Cell>
+    <Cell ss:StyleID="Header"><Data ss:Type="String">Total Debits (-)</Data></Cell>
+    <Cell ss:StyleID="Header"><Data ss:Type="String">Net Current Balance</Data></Cell>
+    <Cell ss:Index="8" ss:StyleID="Header"><Data ss:Type="String">Automation Instructions</Data></Cell>
+   </Row>
+
+   <!-- Row 4: SBI -->
+   <Row>
+    <Cell ss:Index="2"><Data ss:Type="String">SBI</Data></Cell>
+    <Cell ss:StyleID="Currency"><Data ss:Type="Number">5000</Data></Cell>
+    <Cell ss:StyleID="Credits" ss:Formula="=SUMIFS(R14C8:R500C8,R14C5:R500C5,RC2,R14C4:R500C4,&#34;Income&#34;)"><Data ss:Type="Number">45000</Data></Cell>
+    <Cell ss:StyleID="Debits" ss:Formula="=SUMIFS(R14C8:R500C8,R14C5:R500C5,RC2,R14C4:R500C4,&#34;Expense&#34;)+SUMIFS(R14C8:R500C8,R14C5:R500C5,RC2,R14C4:R500C4,&#34;Investment&#34;)+SUMIFS(R14C8:R500C8,R14C5:R500C5,RC2,R14C4:R500C4,&#34;Transfer&#34;)"><Data ss:Type="Number">4500</Data></Cell>
+    <Cell ss:StyleID="CurrencyBold" ss:Formula="=RC3+RC4-RC5"><Data ss:Type="Number">45500</Data></Cell>
+    <Cell ss:Index="8"><Data ss:Type="String">Real-time automated formula via SUMIFS</Data></Cell>
+   </Row>
+
+   <!-- Row 5: CBI -->
+   <Row>
+    <Cell ss:Index="2"><Data ss:Type="String">CBI</Data></Cell>
+    <Cell ss:StyleID="Currency"><Data ss:Type="Number">5000</Data></Cell>
+    <Cell ss:StyleID="Credits" ss:Formula="=SUMIFS(R14C8:R500C8,R14C5:R500C5,RC2,R14C4:R500C4,&#34;Income&#34;)"><Data ss:Type="Number">0</Data></Cell>
+    <Cell ss:StyleID="Debits" ss:Formula="=SUMIFS(R14C8:R500C8,R14C5:R500C5,RC2,R14C4:R500C4,&#34;Expense&#34;)+SUMIFS(R14C8:R500C8,R14C5:R500C5,RC2,R14C4:R500C4,&#34;Investment&#34;)+SUMIFS(R14C8:R500C8,R14C5:R500C5,RC2,R14C4:R500C4,&#34;Transfer&#34;)"><Data ss:Type="Number">2650</Data></Cell>
+    <Cell ss:StyleID="CurrencyBold" ss:Formula="=RC3+RC4-RC5"><Data ss:Type="Number">2350</Data></Cell>
+    <Cell ss:Index="8"><Data ss:Type="String">Automatic debit on CBI selection</Data></Cell>
+   </Row>
+
+   <!-- Row 6: BOB -->
+   <Row>
+    <Cell ss:Index="2"><Data ss:Type="String">BOB</Data></Cell>
+    <Cell ss:StyleID="Currency"><Data ss:Type="Number">9500</Data></Cell>
+    <Cell ss:StyleID="Credits" ss:Formula="=SUMIFS(R14C8:R500C8,R14C5:R500C5,RC2,R14C4:R500C4,&#34;Income&#34;)"><Data ss:Type="Number">0</Data></Cell>
+    <Cell ss:StyleID="Debits" ss:Formula="=SUMIFS(R14C8:R500C8,R14C5:R500C5,RC2,R14C4:R500C4,&#34;Expense&#34;)+SUMIFS(R14C8:R500C8,R14C5:R500C5,RC2,R14C4:R500C4,&#34;Investment&#34;)+SUMIFS(R14C8:R500C8,R14C5:R500C5,RC2,R14C4:R500C4,&#34;Transfer&#34;)"><Data ss:Type="Number">1850</Data></Cell>
+    <Cell ss:StyleID="CurrencyBold" ss:Formula="=RC3+RC4-RC5"><Data ss:Type="Number">7650</Data></Cell>
+   </Row>
+
+   <!-- Row 7: Kotak -->
+   <Row>
+    <Cell ss:Index="2"><Data ss:Type="String">Kotak</Data></Cell>
+    <Cell ss:StyleID="Currency"><Data ss:Type="Number">10000</Data></Cell>
+    <Cell ss:StyleID="Credits" ss:Formula="=SUMIFS(R14C8:R500C8,R14C5:R500C5,RC2,R14C4:R500C4,&#34;Income&#34;)"><Data ss:Type="Number">0</Data></Cell>
+    <Cell ss:StyleID="Debits" ss:Formula="=SUMIFS(R14C8:R500C8,R14C5:R500C5,RC2,R14C4:R500C4,&#34;Expense&#34;)+SUMIFS(R14C8:R500C8,R14C5:R500C5,RC2,R14C4:R500C4,&#34;Investment&#34;)+SUMIFS(R14C8:R500C8,R14C5:R500C5,RC2,R14C4:R500C4,&#34;Transfer&#34;)"><Data ss:Type="Number">5000</Data></Cell>
+    <Cell ss:StyleID="CurrencyBold" ss:Formula="=RC3+RC4-RC5"><Data ss:Type="Number">5000</Data></Cell>
+   </Row>
+
+   <!-- Row 8: Cash Wallet -->
+   <Row>
+    <Cell ss:Index="2"><Data ss:Type="String">Cash Wallet</Data></Cell>
+    <Cell ss:StyleID="Currency"><Data ss:Type="Number">500</Data></Cell>
+    <Cell ss:StyleID="Credits" ss:Formula="=SUMIFS(R14C8:R500C8,R14C5:R500C5,RC2,R14C4:R500C4,&#34;Income&#34;)"><Data ss:Type="Number">2000</Data></Cell>
+    <Cell ss:StyleID="Debits" ss:Formula="=SUMIFS(R14C8:R500C8,R14C5:R500C5,RC2,R14C4:R500C4,&#34;Expense&#34;)+SUMIFS(R14C8:R500C8,R14C5:R500C5,RC2,R14C4:R500C4,&#34;Investment&#34;)+SUMIFS(R14C8:R500C8,R14C5:R500C5,RC2,R14C4:R500C4,&#34;Transfer&#34;)"><Data ss:Type="Number">380</Data></Cell>
+    <Cell ss:StyleID="CurrencyBold" ss:Formula="=RC3+RC4-RC5"><Data ss:Type="Number">2120</Data></Cell>
+   </Row>
+
+   <!-- Row 9: Total -->
+   <Row ss:Height="22">
+    <Cell ss:Index="2" ss:StyleID="TotalRow"><Data ss:Type="String">Total</Data></Cell>
+    <Cell ss:StyleID="TotalRow" ss:Formula="=SUM(R4C3:R8C3)"><Data ss:Type="Number">30000</Data></Cell>
+    <Cell ss:StyleID="TotalRow" ss:Formula="=SUM(R4C4:R8C4)"><Data ss:Type="Number">47000</Data></Cell>
+    <Cell ss:StyleID="TotalRow" ss:Formula="=SUM(R4C5:R8C5)"><Data ss:Type="Number">14380</Data></Cell>
+    <Cell ss:StyleID="TotalRow" ss:Formula="=SUM(R4C6:R8C6)"><Data ss:Type="Number">62620</Data></Cell>
+   </Row>
+
+   <!-- Row 10: Empty -->
+   <Row></Row>
+
+   <!-- Row 11: Section Title -->
+   <Row ss:Height="26">
+    <Cell ss:Index="2" ss:StyleID="TitleStyle"><Data ss:Type="String">Daily Transactions Log</Data></Cell>
+   </Row>
+
+   <!-- Row 12: Empty -->
+   <Row></Row>
+
+   <!-- Row 13: Transaction Table Headers -->
+   <Row ss:Height="24">
+    <Cell ss:Index="2" ss:StyleID="Header"><Data ss:Type="String">Date</Data></Cell>
+    <Cell ss:StyleID="Header"><Data ss:Type="String">Description</Data></Cell>
+    <Cell ss:StyleID="Header"><Data ss:Type="String">Type</Data></Cell>
+    <Cell ss:StyleID="Header"><Data ss:Type="String">Account</Data></Cell>
+    <Cell ss:StyleID="Header"><Data ss:Type="String">Category</Data></Cell>
+    <Cell ss:StyleID="Header"><Data ss:Type="String">Payment Mode</Data></Cell>
+    <Cell ss:StyleID="Header"><Data ss:Type="String">Amount (₹)</Data></Cell>
+    <Cell ss:StyleID="Header"><Data ss:Type="String">Notes / Ref</Data></Cell>
+   </Row>
+
+   <!-- Row 14 onwards: Transactions -->
+   <Row>
+    <Cell ss:Index="2"><Data ss:Type="String">2026-10-01</Data></Cell>
+    <Cell><Data ss:Type="String">October Salary</Data></Cell>
+    <Cell><Data ss:Type="String">Income</Data></Cell>
+    <Cell><Data ss:Type="String">SBI</Data></Cell>
+    <Cell><Data ss:Type="String">Salary</Data></Cell>
+    <Cell><Data ss:Type="String">NetBanking</Data></Cell>
+    <Cell ss:StyleID="Currency"><Data ss:Type="Number">45000</Data></Cell>
+    <Cell><Data ss:Type="String">Ref: SAL-1026</Data></Cell>
+   </Row>
+
+   <Row>
+    <Cell ss:Index="2"><Data ss:Type="String">2026-10-02</Data></Cell>
+    <Cell><Data ss:Type="String">Groceries at Supermarket</Data></Cell>
+    <Cell><Data ss:Type="String">Expense</Data></Cell>
+    <Cell><Data ss:Type="String">CBI</Data></Cell>
+    <Cell><Data ss:Type="String">Groceries</Data></Cell>
+    <Cell><Data ss:Type="String">UPI</Data></Cell>
+    <Cell ss:StyleID="Currency"><Data ss:Type="Number">1200</Data></Cell>
+    <Cell><Data ss:Type="String">Ref: UPI-9876</Data></Cell>
+   </Row>
+
+   <Row>
+    <Cell ss:Index="2"><Data ss:Type="String">2026-10-03</Data></Cell>
+    <Cell><Data ss:Type="String">ATM Withdrawal</Data></Cell>
+    <Cell><Data ss:Type="String">Transfer</Data></Cell>
+    <Cell><Data ss:Type="String">SBI</Data></Cell>
+    <Cell><Data ss:Type="String">Transfer</Data></Cell>
+    <Cell><Data ss:Type="String">Cash</Data></Cell>
+    <Cell ss:StyleID="Currency"><Data ss:Type="Number">2000</Data></Cell>
+    <Cell><Data ss:Type="String">Debited from SBI</Data></Cell>
+   </Row>
+
+   <Row>
+    <Cell ss:Index="2"><Data ss:Type="String">2026-10-03</Data></Cell>
+    <Cell><Data ss:Type="String">ATM Cash Received</Data></Cell>
+    <Cell><Data ss:Type="String">Income</Data></Cell>
+    <Cell><Data ss:Type="String">Cash Wallet</Data></Cell>
+    <Cell><Data ss:Type="String">Transfer</Data></Cell>
+    <Cell><Data ss:Type="String">Cash</Data></Cell>
+    <Cell ss:StyleID="Currency"><Data ss:Type="Number">2000</Data></Cell>
+    <Cell><Data ss:Type="String">Credited to Cash Wallet</Data></Cell>
+   </Row>
+
+   <Row>
+    <Cell ss:Index="2"><Data ss:Type="String">2026-10-04</Data></Cell>
+    <Cell><Data ss:Type="String">Local Market Vegetables</Data></Cell>
+    <Cell><Data ss:Type="String">Expense</Data></Cell>
+    <Cell><Data ss:Type="String">Cash Wallet</Data></Cell>
+    <Cell><Data ss:Type="String">Groceries</Data></Cell>
+    <Cell><Data ss:Type="String">Cash</Data></Cell>
+    <Cell ss:StyleID="Currency"><Data ss:Type="Number">380</Data></Cell>
+    <Cell><Data ss:Type="String">Fresh vegetables</Data></Cell>
+   </Row>
+
+   <Row>
+    <Cell ss:Index="2"><Data ss:Type="String">2026-10-05</Data></Cell>
+    <Cell><Data ss:Type="String">Nifty 50 Index Fund SIP</Data></Cell>
+    <Cell><Data ss:Type="String">Investment</Data></Cell>
+    <Cell><Data ss:Type="String">Kotak</Data></Cell>
+    <Cell><Data ss:Type="String">Mutual Funds</Data></Cell>
+    <Cell><Data ss:Type="String">NetBanking</Data></Cell>
+    <Cell ss:StyleID="Currency"><Data ss:Type="Number">5000</Data></Cell>
+    <Cell><Data ss:Type="String">Monthly SIP</Data></Cell>
+   </Row>
+
+   <Row>
+    <Cell ss:Index="2"><Data ss:Type="String">2026-10-06</Data></Cell>
+    <Cell><Data ss:Type="String">Electricity &amp; Internet Bill</Data></Cell>
+    <Cell><Data ss:Type="String">Expense</Data></Cell>
+    <Cell><Data ss:Type="String">BOB</Data></Cell>
+    <Cell><Data ss:Type="String">Bills &amp; Utilities</Data></Cell>
+    <Cell><Data ss:Type="String">UPI</Data></Cell>
+    <Cell ss:StyleID="Currency"><Data ss:Type="Number">1850</Data></Cell>
+    <Cell><Data ss:Type="String">Ref: BILL-889</Data></Cell>
+   </Row>
+
+   <Row>
+    <Cell ss:Index="2"><Data ss:Type="String">2026-10-07</Data></Cell>
+    <Cell><Data ss:Type="String">Digital Gold Investment</Data></Cell>
+    <Cell><Data ss:Type="String">Investment</Data></Cell>
+    <Cell><Data ss:Type="String">SBI</Data></Cell>
+    <Cell><Data ss:Type="String">Digital Gold</Data></Cell>
+    <Cell><Data ss:Type="String">UPI</Data></Cell>
+    <Cell ss:StyleID="Currency"><Data ss:Type="Number">2500</Data></Cell>
+    <Cell><Data ss:Type="String">Gold accumulation</Data></Cell>
+   </Row>
+
+   <Row>
+    <Cell ss:Index="2"><Data ss:Type="String">2026-10-08</Data></Cell>
+    <Cell><Data ss:Type="String">Weekend Dining with Family</Data></Cell>
+    <Cell><Data ss:Type="String">Expense</Data></Cell>
+    <Cell><Data ss:Type="String">CBI</Data></Cell>
+    <Cell><Data ss:Type="String">Food &amp; Dining</Data></Cell>
+    <Cell><Data ss:Type="String">UPI</Data></Cell>
+    <Cell ss:StyleID="Currency"><Data ss:Type="Number">1450</Data></Cell>
+    <Cell><Data ss:Type="String">Restaurant bill</Data></Cell>
+   </Row>
+  </Table>
+ </Worksheet>
+</Workbook>

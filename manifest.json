@@ -1,0 +1,18 @@
+{
+  "name": "FinWise Mobile",
+  "short_name": "FinWise",
+  "description": "Fast Mobile Multi-Bank Expense & Investment Tracker",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#090d16",
+  "theme_color": "#090d16",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%236366f1'/><text x='50' y='68' font-size='56' font-family='sans-serif' font-weight='bold' text-anchor='middle' fill='white'>₹</text></svg>",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml"
+    }
+  ]
+}
+
