@@ -30,3 +30,4 @@
 
   window.createQrSvg = createQrSvg;
 })();
+
