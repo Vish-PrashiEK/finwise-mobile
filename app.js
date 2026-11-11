@@ -3,22 +3,22 @@
  */
 
 const STORAGE_KEYS = {
-  ACCOUNTS: 'finwise_mob_accounts_v4',
-  TRANSACTIONS: 'finwise_mob_transactions_v4',
+  ACCOUNTS: 'finwise_mob_accounts_v5',
+  TRANSACTIONS: 'finwise_mob_transactions_v5',
   THEME: 'finwise_mob_theme_v2',
   LAST_ACCOUNT: 'finwise_mob_last_acc'
 };
 
-// Default accounts matching user's sheet
+// 100% Blank Accounts (All Balances Set to 0)
 const DEFAULT_ACCOUNTS = [
-  { id: 'acc_sbi', name: 'SBI', type: 'Bank', openingBalance: 5000, color: '#1d4ed8' },
-  { id: 'acc_cbi', name: 'CBI', type: 'Bank', openingBalance: 5000, color: '#4f46e5' },
-  { id: 'acc_bob', name: 'BOB', type: 'Bank', openingBalance: 9500, color: '#ea580c' },
-  { id: 'acc_kotak', name: 'Kotak', type: 'Bank', openingBalance: 10000, color: '#dc2626' },
-  { id: 'acc_cash', name: 'Cash Wallet', type: 'Cash', openingBalance: 500, color: '#059669' }
+  { id: 'acc_sbi', name: 'SBI', type: 'Bank', openingBalance: 0, color: '#1d4ed8' },
+  { id: 'acc_cbi', name: 'CBI', type: 'Bank', openingBalance: 0, color: '#4f46e5' },
+  { id: 'acc_bob', name: 'BOB', type: 'Bank', openingBalance: 0, color: '#ea580c' },
+  { id: 'acc_kotak', name: 'Kotak', type: 'Bank', openingBalance: 0, color: '#dc2626' },
+  { id: 'acc_cash', name: 'Cash Wallet', type: 'Cash', openingBalance: 0, color: '#059669' }
 ];
 
-// Clean Slate: No temporary/sample transactions
+// 100% Blank Transactions (Zero Records)
 const DEFAULT_TRANSACTIONS = [];
 
 // Rich Fast Categories with Icons
@@ -74,6 +74,13 @@ const CATEGORY_COLORS = {
 
 class FinWiseMobile {
   constructor() {
+    // Purge all old versions to guarantee 100% blank slate
+    ['finwise_mob_accounts_v1', 'finwise_mob_accounts_v2', 'finwise_mob_accounts_v3', 'finwise_mob_accounts_v4',
+     'finwise_mob_transactions_v1', 'finwise_mob_transactions_v2', 'finwise_mob_transactions_v3', 'finwise_mob_transactions_v4'
+    ].forEach(k => {
+      try { localStorage.removeItem(k); } catch(e){}
+    });
+
     this.accounts = this.load(STORAGE_KEYS.ACCOUNTS, DEFAULT_ACCOUNTS);
     this.transactions = this.load(STORAGE_KEYS.TRANSACTIONS, DEFAULT_TRANSACTIONS);
     this.currentTab = 'home';
@@ -1006,24 +1013,46 @@ class FinWiseMobile {
     const balances = this.getAccountBalances();
     container.innerHTML = balances.map(acc => {
       return `
-        <div class="tx-item" onclick="window.app.quickAddForAccount('${acc.id}')">
+        <div class="tx-item" style="cursor:default;">
           <div class="tx-item-left">
-            <span class="mini-acc-badge" style="background:${acc.color || '#6366f1'}; width:38px; height:38px; font-size:14px;">${acc.name.substring(0,2).toUpperCase()}</span>
+            <span class="mini-acc-badge" style="background:${acc.color || '#6366f1'}; width:42px; height:42px; font-size:15px;">${acc.name.substring(0,2).toUpperCase()}</span>
             <div class="tx-details">
-              <span class="tx-name">${acc.name}</span>
-              <span class="tx-sub-info">
-                <span>In: +${this.formatCurrency(acc.credits)}</span>
+              <span class="tx-name" style="font-size:1.05rem;">${acc.name}</span>
+              <span class="tx-sub-info" style="font-size:0.74rem;">
+                <span>Opening: ${this.formatCurrency(acc.openingBalance)}</span>
+                <span>• In: +${this.formatCurrency(acc.credits)}</span>
                 <span>• Out: -${this.formatCurrency(acc.debits)}</span>
               </span>
             </div>
           </div>
-          <div class="tx-item-right">
-            <span class="tx-amt" style="color:var(--text-main);">${this.formatCurrency(acc.currentBalance)}</span>
-            <span class="tx-time" style="color:var(--primary); font-weight:700;">+ Entry</span>
+          <div class="tx-item-right" style="gap:6px;">
+            <span class="tx-amt" style="color:var(--text-main); font-size:1.15rem;">${this.formatCurrency(acc.currentBalance)}</span>
+            <div style="display:flex; gap:6px; margin-top:2px;">
+              <button class="quick-pill" style="padding:4px 8px; font-size:0.72rem;" onclick="window.app.editOpeningBalance('${acc.id}')">✏️ Edit</button>
+              <button class="quick-pill" style="padding:4px 8px; font-size:0.72rem; background:var(--primary); color:#fff; border-color:var(--primary);" onclick="window.app.quickAddForAccount('${acc.id}')">+ Add</button>
+            </div>
           </div>
         </div>
       `;
     }).join('');
+  }
+
+  editOpeningBalance(accId) {
+    const acc = this.accounts.find(a => a.id === accId);
+    if (!acc) return;
+    const current = acc.openingBalance || 0;
+    const entered = prompt(`${acc.name} ka Shuruati (Opening) Balance set karein (₹):`, current);
+    if (entered !== null) {
+      const parsed = parseFloat(entered);
+      if (!isNaN(parsed) && parsed >= 0) {
+        acc.openingBalance = parsed;
+        this.save();
+        this.render();
+        this.toast(`${acc.name} ka Balance ₹${parsed.toLocaleString('en-IN')} set ho gaya!`);
+      } else {
+        alert('Kripya valid number daalein');
+      }
+    }
   }
 
   // Render Tab 4: History
