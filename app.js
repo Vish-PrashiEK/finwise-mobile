@@ -86,7 +86,7 @@ const CATEGORY_COLORS = {
   'Other Expense': '#64748b',
   'Mutual Funds': '#8b5cf6',
   'Stocks & Shares': '#6366f1',
-  'Digital Gold': '#f59e0b',
+  'Digital Gold': ' #f59e0b',
   'Fixed Deposit (FD)': '#10b981',
   'PPF / PF': '#06b6d4',
   'Other Investment': '#94a3b8'
