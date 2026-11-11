@@ -3,8 +3,8 @@
  */
 
 const STORAGE_KEYS = {
-  ACCOUNTS: 'finwise_mob_accounts_v2',
-  TRANSACTIONS: 'finwise_mob_transactions_v2',
+  ACCOUNTS: 'finwise_mob_accounts_v4',
+  TRANSACTIONS: 'finwise_mob_transactions_v4',
   THEME: 'finwise_mob_theme_v2',
   LAST_ACCOUNT: 'finwise_mob_last_acc'
 };
@@ -18,98 +18,8 @@ const DEFAULT_ACCOUNTS = [
   { id: 'acc_cash', name: 'Cash Wallet', type: 'Cash', openingBalance: 500, color: '#059669' }
 ];
 
-// Default sample transactions (matching user's prompt + investments)
-const DEFAULT_TRANSACTIONS = [
-  {
-    id: 'tx_1',
-    date: '2026-10-01',
-    description: 'October Salary',
-    type: 'Income',
-    account: 'acc_sbi',
-    category: 'Salary',
-    paymentMode: 'NetBanking',
-    amount: 45000,
-    notes: 'Ref: SAL-1026'
-  },
-  {
-    id: 'tx_2',
-    date: '2026-10-02',
-    description: 'Groceries at Supermarket',
-    type: 'Expense',
-    account: 'acc_cbi',
-    category: 'Groceries',
-    paymentMode: 'UPI',
-    amount: 1200,
-    notes: 'Ref: UPI-9876'
-  },
-  {
-    id: 'tx_3',
-    date: '2026-10-03',
-    description: 'ATM Cash Withdrawal',
-    type: 'Transfer',
-    fromAccount: 'acc_sbi',
-    toAccount: 'acc_cash',
-    category: 'Transfer',
-    paymentMode: 'Cash',
-    amount: 2000,
-    notes: 'To Cash Wallet'
-  },
-  {
-    id: 'tx_4',
-    date: '2026-10-04',
-    description: 'Local Vegetables & Milk',
-    type: 'Expense',
-    account: 'acc_cash',
-    category: 'Groceries',
-    paymentMode: 'Cash',
-    amount: 380,
-    notes: 'Daily market'
-  },
-  {
-    id: 'tx_5',
-    date: '2026-10-05',
-    description: 'Nifty 50 Index Fund SIP',
-    type: 'Investment',
-    account: 'acc_kotak',
-    category: 'Mutual Funds',
-    paymentMode: 'NetBanking',
-    amount: 5000,
-    notes: 'Monthly SIP'
-  },
-  {
-    id: 'tx_6',
-    date: '2026-10-06',
-    description: 'Electricity & Wifi Bill',
-    type: 'Expense',
-    account: 'acc_bob',
-    category: 'Bills & Utilities',
-    paymentMode: 'UPI',
-    amount: 1850,
-    notes: 'Ref: BILL-889'
-  },
-  {
-    id: 'tx_7',
-    date: '2026-10-07',
-    description: 'Digital Gold SIP',
-    type: 'Investment',
-    account: 'acc_sbi',
-    category: 'Digital Gold',
-    paymentMode: 'UPI',
-    amount: 2500,
-    notes: 'Gold accumulation'
-  },
-  {
-    id: 'tx_8',
-    date: '2026-10-08',
-    description: 'Weekend Dining with Family',
-    type: 'Expense',
-    account: 'acc_cbi',
-    category: 'Food & Dining',
-    paymentMode: 'UPI',
-    amount: 1450,
-    notes: 'Restaurant'
-  }
-];
+// Clean Slate: No temporary/sample transactions
+const DEFAULT_TRANSACTIONS = [];
 
 // Rich Fast Categories with Icons
 const FAST_CATEGORIES = {
@@ -686,6 +596,16 @@ class FinWiseMobile {
     // Theme toggle
     document.getElementById('btn-theme-toggle')?.addEventListener('click', () => this.toggleTheme());
 
+    // Clear / Reset All Data
+    document.getElementById('btn-clear-data')?.addEventListener('click', () => {
+      if (confirm('Kya aap saare demo transactions delete karke fresh shuru karna chahte hain?')) {
+        this.transactions = [];
+        this.save();
+        this.render();
+        this.toast('Temporary data saaf kar diya gaya!');
+      }
+    });
+
     // Voice recognition (Speech to Transaction)
     this.initVoice();
 
@@ -857,6 +777,18 @@ class FinWiseMobile {
           </div>
         `;
       }
+      if (!a.maxExpense && !a.maxInvest) {
+        html = `
+          <div class="highlight-insight-banner" style="border-left-color:var(--primary);">
+            <div class="hb-icon">✨</div>
+            <div class="hb-body">
+              <div class="hb-title">Clean Slate (Fresh Start)</div>
+              <div class="hb-main">Aapke 5 Bank Khate Ready Hain!</div>
+              <div class="hb-sub">Niche <strong>+ FAST ADD</strong> button dabakar apni pehli payment ya kamai darj karein.</div>
+            </div>
+          </div>
+        `;
+      }
       insightsContainer.innerHTML = html;
     }
 
@@ -876,7 +808,16 @@ class FinWiseMobile {
 
   buildTxRows(list) {
     if (!list || list.length === 0) {
-      return '<div style="text-align:center; padding:24px; color:var(--text-dim); font-size:0.85rem;">Koi entry nahi mili</div>';
+      return `
+        <div style="text-align:center; padding:32px 16px; background:var(--bg-card); border:1px solid var(--border-subtle); border-radius:var(--radius-md);">
+          <div style="font-size:38px; margin-bottom:8px;">📝</div>
+          <div style="font-weight:800; font-size:1.05rem; color:#fff; margin-bottom:4px;">Koi Entry Nahi Hai</div>
+          <div style="font-size:0.82rem; color:var(--text-muted); line-height:1.4;">
+            Sabhi temporary demo data hata diya gaya hai.<br/>
+            Niche <strong>+ FAST ADD</strong> button dabakar apni pehli entry karein!
+          </div>
+        </div>
+      `;
     }
 
     return list.map(tx => {

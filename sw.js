@@ -1,8 +1,8 @@
 /**
- * FinWise Mobile - Service Worker v3 (Network-First with Offline Fallback)
+ * FinWise Mobile - Service Worker v4 (Clean Slate - Demo Data Removed)
  */
 
-const CACHE_NAME = 'finwise-cache-v3';
+const CACHE_NAME = 'finwise-cache-v4';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
