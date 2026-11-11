@@ -1,8 +1,8 @@
 /**
- * FinWise Mobile - Service Worker (Full Offline PWA Support)
+ * FinWise Mobile - Service Worker v3 (Network-First with Offline Fallback)
  */
 
-const CACHE_NAME = 'finwise-cache-v2';
+const CACHE_NAME = 'finwise-cache-v3';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -34,15 +34,28 @@ self.addEventListener('activate', (event) => {
   );
 });
 
+// Network-First with Cache Fallback (ensures fresh UI updates immediately)
 self.addEventListener('fetch', (event) => {
+  if (event.request.method !== 'GET') return;
+
   event.respondWith(
-    caches.match(event.request).then((response) => {
-      return response || fetch(event.request).catch(() => {
-        if (event.request.mode === 'navigate') {
-          return caches.match('./index.html');
+    fetch(event.request)
+      .then((networkResponse) => {
+        if (networkResponse && networkResponse.status === 200) {
+          const responseClone = networkResponse.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, responseClone);
+          });
         }
-      });
-    })
+        return networkResponse;
+      })
+      .catch(() => {
+        return caches.match(event.request).then((cachedResponse) => {
+          if (cachedResponse) return cachedResponse;
+          if (event.request.mode === 'navigate') {
+            return caches.match('./index.html');
+          }
+        });
+      })
   );
 });
-
