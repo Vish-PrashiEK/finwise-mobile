@@ -572,6 +572,108 @@ class FinWiseMobile {
     }
   }
 
+  initVoice() {
+    const micBtn = document.getElementById('btn-voice-mic');
+    const statusPill = document.getElementById('voice-status-pill');
+    if (!micBtn) return;
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      micBtn.style.display = 'none';
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'hi-IN';
+    recognition.continuous = false;
+    recognition.interimResults = false;
+
+    micBtn.addEventListener('click', () => {
+      try {
+        micBtn.classList.add('listening');
+        if (statusPill) {
+          statusPill.style.display = 'block';
+          statusPill.textContent = '🔴 Sun raha hoon... Boliye (e.g. "Petrol 500 SBI")';
+        }
+        this.haptic(20);
+        recognition.start();
+      } catch (err) {
+        try { recognition.stop(); } catch(e){}
+        micBtn.classList.remove('listening');
+      }
+    });
+
+    recognition.onresult = (event) => {
+      micBtn.classList.remove('listening');
+      if (statusPill) statusPill.style.display = 'none';
+
+      const transcript = (event.results[0][0].transcript || '').toLowerCase();
+      this.parseVoiceCommand(transcript);
+    };
+
+    recognition.onerror = () => {
+      micBtn.classList.remove('listening');
+      if (statusPill) statusPill.style.display = 'none';
+      this.toast('Awaaz samajh nahi aayi, dobara boliye', false);
+    };
+
+    recognition.onend = () => {
+      micBtn.classList.remove('listening');
+      if (statusPill) statusPill.style.display = 'none';
+    };
+  }
+
+  parseVoiceCommand(text) {
+    const amountMatch = text.match(/\d+(\.\d+)?/);
+    if (amountMatch) {
+      const amtInput = document.getElementById('fast-amount');
+      if (amtInput) amtInput.value = amountMatch[0];
+    }
+
+    if (text.includes('sbi')) {
+      this.fastAccount = 'acc_sbi';
+    } else if (text.includes('cbi') || text.includes('central')) {
+      this.fastAccount = 'acc_cbi';
+    } else if (text.includes('bob') || text.includes('baroda')) {
+      this.fastAccount = 'acc_bob';
+    } else if (text.includes('kotak')) {
+      this.fastAccount = 'acc_kotak';
+    } else if (text.includes('cash') || text.includes('rokda') || text.includes('wallet')) {
+      this.fastAccount = 'acc_cash';
+    }
+
+    if (text.includes('petrol') || text.includes('diesel') || text.includes('fuel') || text.includes('auto') || text.includes('cab')) {
+      this.setFastType('Expense');
+      this.fastCategory = 'Travel & Fuel';
+    } else if (text.includes('grocery') || text.includes('ration') || text.includes('sabzi') || text.includes('dmart') || text.includes('d-mart') || text.includes('milk') || text.includes('doodh')) {
+      this.setFastType('Expense');
+      this.fastCategory = 'Groceries';
+    } else if (text.includes('khana') || text.includes('hotel') || text.includes('chai') || text.includes('dinner') || text.includes('lunch') || text.includes('food') || text.includes('swiggy') || text.includes('zomato')) {
+      this.setFastType('Expense');
+      this.fastCategory = 'Food & Dining';
+    } else if (text.includes('sip') || text.includes('mutual')) {
+      this.setFastType('Investment');
+      this.fastCategory = 'Mutual Funds';
+    } else if (text.includes('gold') || text.includes('sona')) {
+      this.setFastType('Investment');
+      this.fastCategory = 'Digital Gold';
+    } else if (text.includes('salary') || text.includes('pagaar')) {
+      this.setFastType('Income');
+      this.fastCategory = 'Salary';
+    } else if (text.includes('bill') || text.includes('recharge') || text.includes('bijli') || text.includes('wifi')) {
+      this.setFastType('Expense');
+      this.fastCategory = 'Bills & Utilities';
+    }
+
+    const descInput = document.getElementById('fast-desc');
+    if (descInput) descInput.value = this.fastCategory;
+
+    this.renderFastAccountPills();
+    this.renderFastCategoryTiles();
+    this.haptic(30);
+    this.toast(`Voice: "${text}" pehchana!`);
+  }
+
   bindEvents() {
     // Nav tabs
     document.querySelectorAll('.nav-tab-btn').forEach(btn => {
@@ -583,6 +685,9 @@ class FinWiseMobile {
 
     // Theme toggle
     document.getElementById('btn-theme-toggle')?.addEventListener('click', () => this.toggleTheme());
+
+    // Voice recognition (Speech to Transaction)
+    this.initVoice();
 
     // Fast entry FAB button
     document.getElementById('btn-open-fast-entry')?.addEventListener('click', () => this.openFastEntry());
@@ -686,21 +791,37 @@ class FinWiseMobile {
     if (expEl) expEl.textContent = '-' + this.formatCurrency(totals.totalExpense);
     if (invEl) invEl.textContent = this.formatCurrency(totals.totalInvested);
 
-    // Render Accounts Carousel
+    // Bank Theme Gradients
+    const BANK_THEMES = {
+      'SBI': { bg: 'linear-gradient(135deg, #0f2b5c 0%, #1e40af 100%)', border: 'rgba(59, 130, 246, 0.5)', icon: '🏛️' },
+      'CBI': { bg: 'linear-gradient(135deg, #2e1065 0%, #4f46e5 100%)', border: 'rgba(99, 102, 241, 0.5)', icon: '🏦' },
+      'BOB': { bg: 'linear-gradient(135deg, #431407 0%, #c2410c 100%)', border: 'rgba(234, 88, 12, 0.5)', icon: '🦁' },
+      'Kotak': { bg: 'linear-gradient(135deg, #450a0a 0%, #b91c1c 100%)', border: 'rgba(239, 68, 68, 0.5)', icon: '🔴' },
+      'Cash Wallet': { bg: 'linear-gradient(135deg, #022c22 0%, #047857 100%)', border: 'rgba(16, 185, 129, 0.5)', icon: '💵' }
+    };
+
+    // Render Accounts Carousel (ATM Card Style)
     const carousel = document.getElementById('home-accounts-carousel');
     if (carousel) {
       const balances = this.getAccountBalances();
       carousel.innerHTML = balances.map(acc => {
+        const theme = BANK_THEMES[acc.name] || {
+          bg: 'linear-gradient(135deg, #1e293b 0%, #334155 100%)',
+          border: 'rgba(255, 255, 255, 0.15)',
+          icon: '💳'
+        };
         const isLow = acc.currentBalance < 1000;
+
         return `
-          <div class="mini-acc-card" onclick="window.app.quickAddForAccount('${acc.id}')">
+          <div class="mini-acc-card" style="background:${theme.bg}; border:1px solid ${theme.border};" onclick="window.app.quickAddForAccount('${acc.id}')">
             <div class="mini-acc-top">
-              <span class="mini-acc-badge" style="background:${acc.color || '#6366f1'}">${acc.name.substring(0,2).toUpperCase()}</span>
-              <span class="mini-acc-type">${acc.type}</span>
+              <span style="font-size:18px;">${theme.icon}</span>
+              <span class="mini-acc-type" style="color:rgba(255,255,255,0.7);">${acc.type}</span>
             </div>
             <div>
-              <div class="mini-acc-name">${acc.name}</div>
+              <div class="mini-acc-name" style="color:#ffffff;">${acc.name}</div>
               <div class="mini-acc-bal ${isLow ? 'low' : ''}">${this.formatCurrency(acc.currentBalance)}</div>
+              <div style="font-size:11px; color:rgba(255,255,255,0.7); margin-top:4px; font-weight:700;">+ Tap to Add</div>
             </div>
           </div>
         `;
