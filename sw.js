@@ -1,8 +1,8 @@
 /**
- * FinWise Mobile - Service Worker v5 (100% Blank Slate)
+ * FinWise Mobile - Service Worker v6 (Custom Accounts, Reminders & Date Picker)
  */
 
-const CACHE_NAME = 'finwise-cache-v5';
+const CACHE_NAME = 'finwise-cache-v6';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',

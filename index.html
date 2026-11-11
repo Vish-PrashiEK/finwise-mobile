@@ -59,9 +59,18 @@
         <!-- Accounts Horizontal Carousel -->
         <div class="section-bar">
           <h2><span>🏦</span> Aapke Khate (Accounts)</h2>
-          <button class="section-bar-link" onclick="window.app.switchTab('accounts')">Sabhi Dekhein</button>
+          <button class="section-bar-link" onclick="window.app.switchTab('accounts')">Manage / Add</button>
         </div>
         <div class="accounts-carousel" id="home-accounts-carousel">
+          <!-- Rendered by JS -->
+        </div>
+
+        <!-- Upcoming Expense Reminders Section -->
+        <div class="section-bar" style="margin-top:20px;">
+          <h2><span>🔔</span> Aane Wale Kharche (Reminders)</h2>
+          <button class="section-bar-link" id="btn-open-reminder-modal">+ Naya Reminder</button>
+        </div>
+        <div id="home-reminders-list" class="tx-list">
           <!-- Rendered by JS -->
         </div>
 
@@ -268,6 +277,16 @@
             <span class="quick-pill" data-amt="2000">+₹2,000</span>
           </div>
 
+          <!-- Date Selector (Aaj / Kal / Custom Date) -->
+          <div style="margin-bottom: 14px;">
+            <label class="drawer-field-label">Taarikh (Date)</label>
+            <div style="display:flex; gap:8px; align-items:center;">
+              <button type="button" class="quick-pill date-pill active" id="btn-date-today">Aaj (Today)</button>
+              <button type="button" class="quick-pill date-pill" id="btn-date-yesterday">Kal (Yesterday)</button>
+              <input type="date" id="fast-tx-date" class="drawer-input" style="padding:8px 10px; margin-bottom:0; flex:1; font-size:0.85rem;" />
+            </div>
+          </div>
+
           <!-- 3. Account Selector (Single or Transfer) -->
           <div id="box-single-account">
             <label class="drawer-field-label">Konse Account Se Katenge?</label>
@@ -338,6 +357,15 @@
             placeholder="e.g. HDFC Bank, ICICI, Paytm"
             required
           />
+          <div class="quick-pills-row" style="margin-top:-8px; margin-bottom:14px;">
+            <span class="quick-pill chip-bank-template" data-name="HDFC Bank" data-color="#1e3a8a">🏛️ HDFC</span>
+            <span class="quick-pill chip-bank-template" data-name="ICICI Bank" data-color="#b91c1c">🏦 ICICI</span>
+            <span class="quick-pill chip-bank-template" data-name="Axis Bank" data-color="#831843">🟣 Axis</span>
+            <span class="quick-pill chip-bank-template" data-name="Paytm Payments" data-color="#0284c7">📱 Paytm</span>
+            <span class="quick-pill chip-bank-template" data-name="Canara Bank" data-color="#0369a1">🟡 Canara</span>
+            <span class="quick-pill chip-bank-template" data-name="PNB" data-color="#991b1b">🔴 PNB</span>
+            <span class="quick-pill chip-bank-template" data-name="Cash Wallet" data-color="#059669">💵 Cash</span>
+          </div>
 
           <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
             <div>
@@ -345,6 +373,7 @@
               <select id="new-acc-type" class="drawer-select" style="margin-bottom:16px;">
                 <option value="Savings Bank">Savings Bank</option>
                 <option value="Current Bank">Current Bank</option>
+                <option value="Salary Account">Salary Account</option>
                 <option value="Cash Wallet">Cash Wallet</option>
               </select>
             </div>
@@ -365,6 +394,82 @@
 
           <button type="submit" class="btn-big-save">
             <span>+ Account Shamil Karein</span>
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Modal: Add New Reminder (Aane Wale Kharche) -->
+    <div class="fast-entry-drawer" id="modal-reminder">
+      <div class="drawer-sheet">
+        <div class="drawer-grabber"></div>
+        <div class="drawer-header">
+          <h2 class="drawer-title">🔔 Kharche Ka Reminder Lagayein</h2>
+          <div class="drawer-close" id="btn-close-reminder-modal">&times;</div>
+        </div>
+
+        <form id="form-reminder">
+          <label class="drawer-field-label">Kharche Ka Naam (Title)</label>
+          <input
+            type="text"
+            id="rem-title"
+            class="drawer-input"
+            placeholder="e.g. Ghar Kiraya, WiFi Bill, SIP, EMI"
+            required
+          />
+          <div class="quick-pills-row" style="margin-top:-8px; margin-bottom:14px;">
+            <span class="quick-pill chip-rem-template" data-title="Ghar Kiraya (Rent)" data-cat="Rent">🏠 Rent</span>
+            <span class="quick-pill chip-rem-template" data-title="Bijli / WiFi Bill" data-cat="Bills & Utilities">💡 Bills</span>
+            <span class="quick-pill chip-rem-template" data-title="Monthly SIP" data-cat="Mutual Funds">📈 SIP</span>
+            <span class="quick-pill chip-rem-template" data-title="Mobile Recharge" data-cat="Bills & Utilities">📱 Recharge</span>
+            <span class="quick-pill chip-rem-template" data-title="Credit Card Bill" data-cat="Bills & Utilities">💳 Card</span>
+            <span class="quick-pill chip-rem-template" data-title="Bike / Car EMI" data-cat="Bills & Utilities">🚗 EMI</span>
+          </div>
+
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+            <div>
+              <label class="drawer-field-label">Rashi (Amount ₹)</label>
+              <input
+                type="number"
+                id="rem-amount"
+                class="drawer-input"
+                placeholder="0"
+                step="any"
+                min="1"
+                required
+              />
+            </div>
+            <div>
+              <label class="drawer-field-label">Due Date (Kab Dena Hai)</label>
+              <input
+                type="date"
+                id="rem-date"
+                class="drawer-input"
+                required
+              />
+            </div>
+          </div>
+
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+            <div>
+              <label class="drawer-field-label">Konse Bank Se?</label>
+              <select id="rem-account" class="drawer-select"></select>
+            </div>
+            <div>
+              <label class="drawer-field-label">Category</label>
+              <select id="rem-category" class="drawer-select">
+                <option value="Bills & Utilities">Bills & Utilities</option>
+                <option value="Rent">Rent</option>
+                <option value="Mutual Funds">Mutual Funds (SIP)</option>
+                <option value="Groceries">Groceries</option>
+                <option value="Health & Medical">Health & Medical</option>
+                <option value="Other Expense">Other Expense</option>
+              </select>
+            </div>
+          </div>
+
+          <button type="submit" class="btn-big-save">
+            <span>🔔 Reminder Set Karein</span>
           </button>
         </form>
       </div>

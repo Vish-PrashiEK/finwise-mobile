@@ -3,23 +3,43 @@
  */
 
 const STORAGE_KEYS = {
-  ACCOUNTS: 'finwise_mob_accounts_v5',
+  ACCOUNTS: 'finwise_mob_accounts_v6',
   TRANSACTIONS: 'finwise_mob_transactions_v5',
+  REMINDERS: 'finwise_mob_reminders_v1',
   THEME: 'finwise_mob_theme_v2',
   LAST_ACCOUNT: 'finwise_mob_last_acc'
 };
 
-// 100% Blank Accounts (All Balances Set to 0)
+// Default Accounts (BOB removed as requested, customizable by any user)
 const DEFAULT_ACCOUNTS = [
-  { id: 'acc_sbi', name: 'SBI', type: 'Bank', openingBalance: 0, color: '#1d4ed8' },
-  { id: 'acc_cbi', name: 'CBI', type: 'Bank', openingBalance: 0, color: '#4f46e5' },
-  { id: 'acc_bob', name: 'BOB', type: 'Bank', openingBalance: 0, color: '#ea580c' },
-  { id: 'acc_kotak', name: 'Kotak', type: 'Bank', openingBalance: 0, color: '#dc2626' },
-  { id: 'acc_cash', name: 'Cash Wallet', type: 'Cash', openingBalance: 0, color: '#059669' }
+  { id: 'acc_sbi', name: 'SBI', type: 'Savings Bank', openingBalance: 0, color: '#1d4ed8' },
+  { id: 'acc_cbi', name: 'CBI', type: 'Savings Bank', openingBalance: 0, color: '#4f46e5' },
+  { id: 'acc_kotak', name: 'Kotak', type: 'Savings Bank', openingBalance: 0, color: '#dc2626' },
+  { id: 'acc_cash', name: 'Cash Wallet', type: 'Cash Wallet', openingBalance: 0, color: '#059669' }
 ];
 
-// 100% Blank Transactions (Zero Records)
+// 100% Blank Transactions
 const DEFAULT_TRANSACTIONS = [];
+
+// Default Reminder Templates
+const DEFAULT_REMINDERS = [
+  {
+    id: 'rem_1',
+    title: 'Ghar Kiraya (Rent)',
+    amount: 12000,
+    dueDate: new Date(Date.now() + 5 * 86400000).toISOString().split('T')[0],
+    account: 'acc_sbi',
+    category: 'Rent'
+  },
+  {
+    id: 'rem_2',
+    title: 'Bijli & WiFi Bill',
+    amount: 1500,
+    dueDate: new Date(Date.now() + 10 * 86400000).toISOString().split('T')[0],
+    account: 'acc_sbi',
+    category: 'Bills & Utilities'
+  }
+];
 
 // Rich Fast Categories with Icons
 const FAST_CATEGORIES = {
@@ -83,12 +103,14 @@ class FinWiseMobile {
 
     this.accounts = this.load(STORAGE_KEYS.ACCOUNTS, DEFAULT_ACCOUNTS);
     this.transactions = this.load(STORAGE_KEYS.TRANSACTIONS, DEFAULT_TRANSACTIONS);
+    this.reminders = this.load(STORAGE_KEYS.REMINDERS, DEFAULT_REMINDERS);
     this.currentTab = 'home';
 
     // Fast entry state
     this.fastType = 'Expense';
     this.fastAccount = localStorage.getItem(STORAGE_KEYS.LAST_ACCOUNT) || (this.accounts[0] ? this.accounts[0].id : 'acc_sbi');
     this.fastCategory = 'Groceries';
+    this.fastDate = new Date().toISOString().split('T')[0];
     this.editingTxId = null;
 
     this.init();
@@ -107,6 +129,7 @@ class FinWiseMobile {
     try {
       localStorage.setItem(STORAGE_KEYS.ACCOUNTS, JSON.stringify(this.accounts));
       localStorage.setItem(STORAGE_KEYS.TRANSACTIONS, JSON.stringify(this.transactions));
+      localStorage.setItem(STORAGE_KEYS.REMINDERS, JSON.stringify(this.reminders));
       localStorage.setItem(STORAGE_KEYS.LAST_ACCOUNT, this.fastAccount);
     } catch (e) {}
   }
@@ -297,11 +320,13 @@ class FinWiseMobile {
         this.fastAccount = tx.account;
         this.fastCategory = tx.category;
       }
+      this.setDateSelection(tx.date);
     } else {
       this.editingTxId = null;
       document.getElementById('drawer-form-title').textContent = '⚡ Fast Transaction';
       this.setFastType('Expense');
       document.getElementById('fast-desc').value = 'Groceries';
+      this.setDateSelection(new Date().toISOString().split('T')[0]);
     }
 
     this.renderFastAccountPills();
@@ -316,6 +341,20 @@ class FinWiseMobile {
   closeFastEntry() {
     document.getElementById('fast-entry-drawer')?.classList.remove('open');
     this.editingTxId = null;
+  }
+
+  setDateSelection(dateStr) {
+    const input = document.getElementById('fast-tx-date');
+    if (input) input.value = dateStr;
+
+    const today = new Date().toISOString().split('T')[0];
+    const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+
+    const btnToday = document.getElementById('btn-date-today');
+    const btnYest = document.getElementById('btn-date-yesterday');
+
+    if (btnToday) btnToday.classList.toggle('active', dateStr === today);
+    if (btnYest) btnYest.classList.toggle('active', dateStr === yesterday);
   }
 
   setFastType(type) {
@@ -436,9 +475,11 @@ class FinWiseMobile {
       return;
     }
 
-    const today = new Date().toISOString().split('T')[0];
+    const dateInput = document.getElementById('fast-tx-date');
+    const txDate = (dateInput && dateInput.value) ? dateInput.value : new Date().toISOString().split('T')[0];
+
     let tx = {
-      date: today,
+      date: txDate,
       description: desc,
       type: this.fastType,
       amount,
@@ -645,6 +686,20 @@ class FinWiseMobile {
       });
     });
 
+    // Date selection pills
+    document.getElementById('btn-date-today')?.addEventListener('click', () => {
+      this.setDateSelection(new Date().toISOString().split('T')[0]);
+      this.haptic(10);
+    });
+    document.getElementById('btn-date-yesterday')?.addEventListener('click', () => {
+      const yest = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+      this.setDateSelection(yest);
+      this.haptic(10);
+    });
+    document.getElementById('fast-tx-date')?.addEventListener('change', (e) => {
+      this.setDateSelection(e.target.value);
+    });
+
     // Fast form submit
     document.getElementById('form-fast-entry')?.addEventListener('submit', (e) => this.handleFastSubmit(e));
 
@@ -660,6 +715,19 @@ class FinWiseMobile {
 
     document.getElementById('modal-add-acc')?.addEventListener('click', (e) => {
       if (e.target.id === 'modal-add-acc') document.getElementById('modal-add-acc')?.classList.remove('open');
+    });
+
+    // Bank template chip clicks
+    document.querySelectorAll('.chip-bank-template').forEach(chip => {
+      chip.addEventListener('click', () => {
+        const name = chip.getAttribute('data-name');
+        const color = chip.getAttribute('data-color');
+        const nameInput = document.getElementById('new-acc-name');
+        const colorInput = document.getElementById('new-acc-color');
+        if (nameInput) nameInput.value = name;
+        if (colorInput) colorInput.value = color || '#6366f1';
+        this.haptic(10);
+      });
     });
 
     document.getElementById('form-add-acc')?.addEventListener('submit', (e) => {
@@ -683,6 +751,69 @@ class FinWiseMobile {
       this.toast(`Naya Bank "${name}" joda gaya!`);
     });
 
+    // Reminder modal & events
+    document.getElementById('btn-open-reminder-modal')?.addEventListener('click', () => {
+      document.getElementById('form-reminder')?.reset();
+      const accSelect = document.getElementById('rem-account');
+      if (accSelect) {
+        accSelect.innerHTML = this.accounts.map(a => `<option value="${a.id}">${a.name} (${a.type})</option>`).join('');
+      }
+      const remDate = document.getElementById('rem-date');
+      if (remDate) {
+        remDate.value = new Date(Date.now() + 5 * 86400000).toISOString().split('T')[0];
+      }
+      document.getElementById('modal-reminder')?.classList.add('open');
+    });
+
+    document.getElementById('btn-close-reminder-modal')?.addEventListener('click', () => {
+      document.getElementById('modal-reminder')?.classList.remove('open');
+    });
+
+    document.getElementById('modal-reminder')?.addEventListener('click', (e) => {
+      if (e.target.id === 'modal-reminder') document.getElementById('modal-reminder')?.classList.remove('open');
+    });
+
+    // Reminder template chip clicks
+    document.querySelectorAll('.chip-rem-template').forEach(chip => {
+      chip.addEventListener('click', () => {
+        const title = chip.getAttribute('data-title');
+        const cat = chip.getAttribute('data-cat');
+        const titleInput = document.getElementById('rem-title');
+        const catSelect = document.getElementById('rem-category');
+        if (titleInput) titleInput.value = title;
+        if (catSelect && cat) catSelect.value = cat;
+        this.haptic(10);
+      });
+    });
+
+    document.getElementById('form-reminder')?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const title = document.getElementById('rem-title').value.trim();
+      const amount = parseFloat(document.getElementById('rem-amount').value);
+      const dueDate = document.getElementById('rem-date').value;
+      const account = document.getElementById('rem-account').value;
+      const category = document.getElementById('rem-category').value;
+
+      if (!title || isNaN(amount) || amount <= 0 || !dueDate) {
+        alert('Kripya valid title, amount aur due date bharein!');
+        return;
+      }
+
+      this.reminders.push({
+        id: 'rem_' + Date.now(),
+        title,
+        amount,
+        dueDate,
+        account,
+        category
+      });
+
+      this.save();
+      document.getElementById('modal-reminder')?.classList.remove('open');
+      this.render();
+      this.toast(`"${title}" reminder set ho gaya!`);
+    });
+
     // Quick Transfer Banner in Accounts tab
     document.getElementById('banner-quick-transfer')?.addEventListener('click', () => {
       this.openFastEntry();
@@ -700,6 +831,7 @@ class FinWiseMobile {
 
   render() {
     this.renderHome();
+    this.renderReminders();
     if (this.currentTab === 'analytics') this.renderAnalytics();
     if (this.currentTab === 'accounts') this.renderAccountsTab();
     if (this.currentTab === 'history') this.renderHistory();
@@ -1013,7 +1145,7 @@ class FinWiseMobile {
     const balances = this.getAccountBalances();
     container.innerHTML = balances.map(acc => {
       return `
-        <div class="tx-item" style="cursor:default;">
+        <div class="tx-item" style="cursor:default; margin-bottom:10px;">
           <div class="tx-item-left">
             <span class="mini-acc-badge" style="background:${acc.color || '#6366f1'}; width:42px; height:42px; font-size:15px;">${acc.name.substring(0,2).toUpperCase()}</span>
             <div class="tx-details">
@@ -1028,8 +1160,9 @@ class FinWiseMobile {
           <div class="tx-item-right" style="gap:6px;">
             <span class="tx-amt" style="color:var(--text-main); font-size:1.15rem;">${this.formatCurrency(acc.currentBalance)}</span>
             <div style="display:flex; gap:6px; margin-top:2px;">
-              <button class="quick-pill" style="padding:4px 8px; font-size:0.72rem;" onclick="window.app.editOpeningBalance('${acc.id}')">✏️ Edit</button>
               <button class="quick-pill" style="padding:4px 8px; font-size:0.72rem; background:var(--primary); color:#fff; border-color:var(--primary);" onclick="window.app.quickAddForAccount('${acc.id}')">+ Add</button>
+              <button class="quick-pill" style="padding:4px 8px; font-size:0.72rem;" onclick="window.app.editOpeningBalance('${acc.id}')">✏️ Edit</button>
+              <button class="quick-pill" style="padding:4px 8px; font-size:0.72rem; color:var(--expense); border-color:rgba(244,63,94,0.3);" onclick="window.app.closeAccount('${acc.id}')" title="Account Band / Delete Karein">❌ Close</button>
             </div>
           </div>
         </div>
@@ -1052,6 +1185,127 @@ class FinWiseMobile {
       } else {
         alert('Kripya valid number daalein');
       }
+    }
+  }
+
+  closeAccount(accId) {
+    const acc = this.accounts.find(a => a.id === accId);
+    if (!acc) return;
+    if (this.accounts.length <= 1) {
+      alert('Kam se kam ek account hona zaroori hai!');
+      return;
+    }
+    const hasTx = this.transactions.some(t => t.account === accId || t.fromAccount === accId || t.toAccount === accId);
+    const msg = hasTx
+      ? `"${acc.name}" account ko band / delete karne se yeh naye transactions ke liye hat jayega (purani entries history me rahengi).\n\nKya aap ise band karna chahte hain?`
+      : `Kya aap "${acc.name}" account ko band / delete karna chahte hain?`;
+
+    if (confirm(msg)) {
+      this.accounts = this.accounts.filter(a => a.id !== accId);
+      if (this.fastAccount === accId) {
+        this.fastAccount = this.accounts[0].id;
+      }
+      this.save();
+      this.render();
+      this.toast(`"${acc.name}" account band kar diya gaya!`);
+    }
+  }
+
+  renderReminders() {
+    const container = document.getElementById('home-reminders-list');
+    if (!container) return;
+
+    if (!this.reminders || this.reminders.length === 0) {
+      container.innerHTML = `
+        <div style="text-align:center; padding:18px; background:var(--bg-card); border:1px solid var(--border-subtle); border-radius:var(--radius-md); font-size:0.82rem; color:var(--text-muted);">
+          Koi reminder set nahi hai. <strong>+ Naya Reminder</strong> dabakar bill ya rent ka reminder lagayein!
+        </div>
+      `;
+      return;
+    }
+
+    const todayStr = new Date().toISOString().split('T')[0];
+    const todayMs = new Date(todayStr).getTime();
+    const sorted = [...this.reminders].sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
+
+    container.innerHTML = sorted.map(rem => {
+      const dueMs = new Date(rem.dueDate).getTime();
+      const diffDays = Math.round((dueMs - todayMs) / (1000 * 60 * 60 * 24));
+
+      let badgeHtml = '';
+      let cardClass = '';
+
+      if (diffDays < 0) {
+        badgeHtml = `<span class="reminder-badge badge-urgent">Overdue (${Math.abs(diffDays)} din pehle)</span>`;
+        cardClass = 'urgent';
+      } else if (diffDays === 0) {
+        badgeHtml = `<span class="reminder-badge badge-today">🔥 Aaj Due Hai</span>`;
+        cardClass = 'due-today';
+      } else if (diffDays <= 3) {
+        badgeHtml = `<span class="reminder-badge badge-upcoming">⚠️ ${diffDays} Din Bache Hain</span>`;
+        cardClass = 'upcoming';
+      } else {
+        badgeHtml = `<span class="reminder-badge badge-normal">📅 ${rem.dueDate}</span>`;
+      }
+
+      const accObj = this.accounts.find(a => a.id === rem.account);
+      const accName = accObj ? accObj.name : 'Bank';
+
+      return `
+        <div class="reminder-card ${cardClass}" data-id="${rem.id}">
+          <div style="display:flex; align-items:center; gap:12px; overflow:hidden;">
+            <div class="tx-cat-icon">🔔</div>
+            <div style="display:flex; flex-direction:column; overflow:hidden;">
+              <span style="font-weight:800; font-size:0.95rem; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${rem.title}</span>
+              <div>${badgeHtml} <span class="tx-bank-tag" style="font-size:0.7rem;">Pay from ${accName}</span></div>
+            </div>
+          </div>
+          <div style="display:flex; flex-direction:column; align-items:flex-end; gap:6px; flex-shrink:0;">
+            <span style="font-weight:900; font-size:1.05rem; color:var(--text-main);">${this.formatCurrency(rem.amount)}</span>
+            <div style="display:flex; gap:6px;">
+              <button type="button" class="quick-pill" style="padding:4px 10px; font-size:0.75rem; background:var(--income); color:#fff; border-color:var(--income); font-weight:800;" onclick="window.app.payReminder('${rem.id}')">✅ Pay Now</button>
+              <button type="button" class="quick-pill" style="padding:4px 8px; font-size:0.75rem; color:var(--expense);" onclick="window.app.deleteReminder('${rem.id}')">🗑️</button>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  payReminder(remId) {
+    const rem = this.reminders.find(r => r.id === remId);
+    if (!rem) return;
+
+    let targetAcc = this.accounts.find(a => a.id === rem.account) || this.accounts[0];
+    const confirmMsg = `Kya aap "${rem.title}" ke liye ₹${rem.amount} ${targetAcc.name} se log karna chahte hain?`;
+    if (confirm(confirmMsg)) {
+      const today = new Date().toISOString().split('T')[0];
+      const newTx = {
+        id: 'tx_' + Date.now(),
+        date: today,
+        description: rem.title,
+        type: 'Expense',
+        account: targetAcc.id,
+        category: rem.category || 'Bills & Utilities',
+        paymentMode: 'UPI',
+        amount: Number(rem.amount),
+        notes: 'Paid via Reminder'
+      };
+
+      this.transactions.unshift(newTx);
+      this.reminders = this.reminders.filter(r => r.id !== remId);
+      this.save();
+      this.render();
+      this.toast(`₹${rem.amount} ${rem.title} ${targetAcc.name} se log ho gaya!`);
+    }
+  }
+
+  deleteReminder(remId) {
+    if (confirm('Kya aap yeh reminder hatana chahte hain?')) {
+      this.reminders = this.reminders.filter(r => r.id !== remId);
+      this.save();
+      this.render();
+      this.toast('Reminder hata diya gaya.');
     }
   }
 
