@@ -94,13 +94,6 @@ const CATEGORY_COLORS = {
 
 class FinWiseMobile {
   constructor() {
-    // Purge all old versions to guarantee 100% blank slate
-    ['finwise_mob_accounts_v1', 'finwise_mob_accounts_v2', 'finwise_mob_accounts_v3', 'finwise_mob_accounts_v4',
-     'finwise_mob_transactions_v1', 'finwise_mob_transactions_v2', 'finwise_mob_transactions_v3', 'finwise_mob_transactions_v4'
-    ].forEach(k => {
-      try { localStorage.removeItem(k); } catch(e){}
-    });
-
     this.accounts = this.load(STORAGE_KEYS.ACCOUNTS, DEFAULT_ACCOUNTS);
     this.transactions = this.load(STORAGE_KEYS.TRANSACTIONS, DEFAULT_TRANSACTIONS);
     this.reminders = this.load(STORAGE_KEYS.REMINDERS, DEFAULT_REMINDERS);
@@ -131,6 +124,18 @@ class FinWiseMobile {
       localStorage.setItem(STORAGE_KEYS.TRANSACTIONS, JSON.stringify(this.transactions));
       localStorage.setItem(STORAGE_KEYS.REMINDERS, JSON.stringify(this.reminders));
       localStorage.setItem(STORAGE_KEYS.LAST_ACCOUNT, this.fastAccount);
+
+      // Automatic rolling backup snapshot whenever transactions exist
+      if (this.transactions && this.transactions.length > 0) {
+        const backupSnapshot = {
+          accounts: this.accounts,
+          transactions: this.transactions,
+          reminders: this.reminders,
+          timestamp: Date.now(),
+          dateStr: new Date().toLocaleString('en-IN')
+        };
+        localStorage.setItem('finwise_auto_backup_rolling', JSON.stringify(backupSnapshot));
+      }
     } catch (e) {}
   }
 
@@ -644,15 +649,30 @@ class FinWiseMobile {
     // Theme toggle
     document.getElementById('btn-theme-toggle')?.addEventListener('click', () => this.toggleTheme());
 
-    // Clear / Reset All Data
-    document.getElementById('btn-clear-data')?.addEventListener('click', () => {
-      if (confirm('Kya aap saare demo transactions delete karke fresh shuru karna chahte hain?')) {
-        this.transactions = [];
-        this.save();
-        this.render();
-        this.toast('Temporary data saaf kar diya gaya!');
+    // Settings & Backup modal
+    document.getElementById('btn-open-settings')?.addEventListener('click', () => {
+      document.getElementById('modal-settings')?.classList.add('open');
+    });
+
+    document.getElementById('btn-close-settings-modal')?.addEventListener('click', () => {
+      document.getElementById('modal-settings')?.classList.remove('open');
+    });
+
+    document.getElementById('modal-settings')?.addEventListener('click', (e) => {
+      if (e.target.id === 'modal-settings') document.getElementById('modal-settings')?.classList.remove('open');
+    });
+
+    // Settings Actions: Data Recovery, JSON Download, File Restore & Protected Reset
+    document.getElementById('btn-recover-lost-data')?.addEventListener('click', () => this.recoverLostData());
+    document.getElementById('btn-download-json-backup')?.addEventListener('click', () => this.downloadJsonBackup());
+    document.getElementById('input-restore-backup')?.addEventListener('change', (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (file) {
+        this.restoreBackupFromFile(file);
+        e.target.value = '';
       }
     });
+    document.getElementById('btn-protected-reset')?.addEventListener('click', () => this.protectedReset());
 
     // Voice recognition (Speech to Transaction)
     this.initVoice();
@@ -1359,6 +1379,234 @@ class FinWiseMobile {
     link.click();
     URL.revokeObjectURL(url);
     this.toast('CSV Downloaded!');
+  }
+
+  recoverLostData() {
+    try {
+      let candidate = null;
+      let candidateSource = '';
+
+      // 1. Check safety snapshot first (saved right before reset)
+      const safety = localStorage.getItem('finwise_safety_snapshot');
+      if (safety) {
+        try {
+          const parsed = JSON.parse(safety);
+          if (parsed && Array.isArray(parsed.transactions) && parsed.transactions.length > 0) {
+            candidate = parsed;
+            candidateSource = 'Safety Snapshot (Reset se theek pehle)';
+          }
+        } catch (e) {}
+      }
+
+      // 2. Check rolling backup if candidate not found
+      if (!candidate) {
+        const rolling = localStorage.getItem('finwise_auto_backup_rolling');
+        if (rolling) {
+          try {
+            const parsed = JSON.parse(rolling);
+            if (parsed && Array.isArray(parsed.transactions) && parsed.transactions.length > 0) {
+              candidate = parsed;
+              candidateSource = 'Auto-Backup Snapshot';
+            }
+          } catch (e) {}
+        }
+      }
+
+      // 3. Check known storage keys
+      if (!candidate) {
+        const possibleKeys = [
+          'finwise_mob_transactions_v5',
+          'finwise_mob_transactions_v4',
+          'finwise_mob_transactions_v3',
+          'finwise_mob_transactions_v2',
+          'finwise_mob_transactions_v1',
+          'finwise_transactions_v1',
+          'finwise_transactions'
+        ];
+        for (const k of possibleKeys) {
+          const raw = localStorage.getItem(k);
+          if (raw) {
+            try {
+              const list = JSON.parse(raw);
+              if (Array.isArray(list) && list.length > 0) {
+                candidate = { transactions: list, accounts: this.accounts, reminders: this.reminders };
+                candidateSource = `Pichli Storage Key (${k})`;
+                break;
+              }
+            } catch (e) {}
+          }
+        }
+      }
+
+      // 4. Also scan any key in localStorage containing 'finwise'
+      if (!candidate) {
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (key && key.includes('finwise') && key !== STORAGE_KEYS.TRANSACTIONS) {
+            try {
+              const raw = localStorage.getItem(key);
+              const data = JSON.parse(raw);
+              if (Array.isArray(data) && data.length > 0 && data[0] && (data[0].amount !== undefined || data[0].type)) {
+                candidate = { transactions: data, accounts: this.accounts, reminders: this.reminders };
+                candidateSource = `Storage Key (${key})`;
+                break;
+              } else if (data && Array.isArray(data.transactions) && data.transactions.length > 0) {
+                candidate = data;
+                candidateSource = `Storage Key (${key})`;
+                break;
+              }
+            } catch (e) {}
+          }
+        }
+      }
+
+      if (candidate && Array.isArray(candidate.transactions) && candidate.transactions.length > 0) {
+        const count = candidate.transactions.length;
+        const timeInfo = candidate.dateStr ? ` (${candidate.dateStr})` : '';
+        const shouldRestore = confirm(
+          `Mil gaya! ${count} transactions ${candidateSource}${timeInfo} me paye gaye hain.\n\nKya aap inhein restore karna chahte hain?`
+        );
+        if (shouldRestore) {
+          this.transactions = candidate.transactions;
+          if (Array.isArray(candidate.accounts) && candidate.accounts.length > 0) {
+            // merge accounts if any missing
+            candidate.accounts.forEach(ca => {
+              if (!this.accounts.some(a => a.id === ca.id)) {
+                this.accounts.push(ca);
+              }
+            });
+          }
+          if (Array.isArray(candidate.reminders) && candidate.reminders.length > 0) {
+            this.reminders = candidate.reminders;
+          }
+          this.save();
+          this.render();
+          document.getElementById('modal-settings')?.classList.remove('open');
+          this.toast(`Shaandar! ${count} transactions recover ho gaye! 🎉`);
+          return;
+        }
+      } else {
+        alert('Browser storage me koi purana backup ya lost transactions nahi mile.\n\nAgar aapke paas backup JSON file hai, to "Backup File Upload" button se restore kar sakte hain.');
+      }
+    } catch (err) {
+      alert('Data recovery me error: ' + err.message);
+    }
+  }
+
+  downloadJsonBackup() {
+    const backupData = {
+      app: 'FinWise Mobile',
+      version: 'v7',
+      exportDate: new Date().toISOString(),
+      exportDateFormatted: new Date().toLocaleString('en-IN'),
+      accounts: this.accounts,
+      transactions: this.transactions,
+      reminders: this.reminders
+    };
+
+    const jsonStr = JSON.stringify(backupData, null, 2);
+    const blob = new Blob([jsonStr], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `FinWise_Backup_${new Date().toISOString().split('T')[0]}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    this.toast('Backup JSON download ho gaya!');
+  }
+
+  restoreBackupFromFile(file) {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const text = e.target.result;
+        if (file.name.endsWith('.json')) {
+          const parsed = JSON.parse(text);
+          if (parsed && (Array.isArray(parsed.transactions) || Array.isArray(parsed.accounts))) {
+            if (Array.isArray(parsed.accounts) && parsed.accounts.length > 0) {
+              this.accounts = parsed.accounts;
+            }
+            if (Array.isArray(parsed.transactions)) {
+              this.transactions = parsed.transactions;
+            }
+            if (Array.isArray(parsed.reminders)) {
+              this.reminders = parsed.reminders;
+            }
+            this.save();
+            this.render();
+            document.getElementById('modal-settings')?.classList.remove('open');
+            this.toast(`Backup restore ho gaya! (${this.transactions.length} entries) 🎉`);
+          } else {
+            alert('Yeh file valid FinWise backup JSON nahi hai.');
+          }
+        } else if (file.name.endsWith('.csv')) {
+          const lines = text.split('\n').filter(l => l.trim().length > 0);
+          if (lines.length > 1) {
+            const newTxs = [];
+            for (let i = 1; i < lines.length; i++) {
+              const parts = lines[i].split(',').map(s => s.replace(/^"|"$/g, '').trim());
+              if (parts.length >= 6) {
+                const [date, description, type, accName, category, amount] = parts;
+                const matchedAcc = this.accounts.find(a => a.name.toLowerCase() === accName.toLowerCase()) || this.accounts[0];
+                newTxs.push({
+                  id: 'tx_csv_' + Date.now() + '_' + i,
+                  date: date || new Date().toISOString().split('T')[0],
+                  description: description || 'Imported Entry',
+                  type: type || 'Expense',
+                  account: matchedAcc ? matchedAcc.id : 'acc_sbi',
+                  category: category || 'Other Expense',
+                  amount: parseFloat(amount) || 0,
+                  paymentMode: 'UPI'
+                });
+              }
+            }
+            if (newTxs.length > 0) {
+              this.transactions = [...newTxs, ...this.transactions];
+              this.save();
+              this.render();
+              document.getElementById('modal-settings')?.classList.remove('open');
+              this.toast(`${newTxs.length} entries CSV se import ho gayi! 🎉`);
+            }
+          }
+        }
+      } catch (err) {
+        alert('File read karne me error: ' + err.message);
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  protectedReset() {
+    // 1. Take safety snapshot first so user can recover if needed
+    try {
+      const safetySnapshot = {
+        accounts: this.accounts,
+        transactions: this.transactions,
+        reminders: this.reminders,
+        timestamp: Date.now(),
+        dateStr: new Date().toLocaleString('en-IN')
+      };
+      localStorage.setItem('finwise_safety_snapshot', JSON.stringify(safetySnapshot));
+    } catch (e) {}
+
+    // 2. Strict prompt requiring typing RESET
+    const userInput = prompt(
+      '⚠️ KHATRA / DANGER ZONE:\n\n' +
+      'Saare transactions delete ho jayenge aur account balances zero/opening par aa jayenge!\n\n' +
+      'Aapka safety snapshot save ho chuka hai (Settings me "Recover" se wapas laya ja sakta hai).\n\n' +
+      'Aage badhne ke liye niche "RESET" (capital letters me) type karein:'
+    );
+
+    if (userInput && userInput.trim().toUpperCase() === 'RESET') {
+      this.transactions = [];
+      this.save();
+      this.render();
+      document.getElementById('modal-settings')?.classList.remove('open');
+      this.toast('Saara data delete kar diya gaya (Safety backup saved).', false);
+    } else if (userInput !== null) {
+      alert('Aapne "RESET" nahi likha, isliye data delete nahi kiya gaya.');
+    }
   }
 }
 

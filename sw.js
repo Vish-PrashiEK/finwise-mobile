@@ -1,8 +1,8 @@
 /**
- * FinWise Mobile - Service Worker v6 (Custom Accounts, Reminders & Date Picker)
+ * FinWise Mobile - Service Worker v7 (Protected Reset, Auto-Backup & Data Recovery)
  */
 
-const CACHE_NAME = 'finwise-cache-v6';
+const CACHE_NAME = 'finwise-cache-v7';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
