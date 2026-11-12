@@ -360,19 +360,6 @@ body {
 .nw-stat-val.inc { color: var(--income); }
 .nw-stat-val.exp { color: var(--expense); }
 .nw-stat-val.inv { color: var(--invest); }
-  color: #94a3b8;
-  margin-bottom: 4px;
-  font-weight: 600;
-}
-
-.nw-stat-val {
-  font-size: 0.95rem;
-  font-weight: 800;
-  white-space: nowrap;
-}
-.nw-stat-val.inc { color: #34d399; }
-.nw-stat-val.exp { color: #fb7185; }
-.nw-stat-val.inv { color: #c084fc; }
 
 /* ============================================================ */
 /* SECTION BARS & HEADINGS                                      */
