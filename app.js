@@ -101,6 +101,7 @@ class FinWiseMobile {
     this.reminders = this.load(STORAGE_KEYS.REMINDERS, DEFAULT_REMINDERS);
     this.user = this.load(STORAGE_KEYS.USER_SESSION, null);
     this.lastDriveSync = localStorage.getItem(STORAGE_KEYS.LAST_SYNC) || null;
+    this.balanceHidden = localStorage.getItem('finwise_balance_hidden') === 'true';
     this.currentTab = 'home';
 
     // Fast entry state
@@ -653,6 +654,14 @@ class FinWiseMobile {
     // Theme toggle
     document.getElementById('btn-theme-toggle')?.addEventListener('click', () => this.toggleTheme());
 
+    // Balance Privacy Toggle (Eye icon)
+    document.getElementById('btn-toggle-balance-privacy')?.addEventListener('click', () => {
+      this.balanceHidden = !this.balanceHidden;
+      localStorage.setItem('finwise_balance_hidden', this.balanceHidden);
+      this.haptic(10);
+      this.renderHome();
+    });
+
     // Settings & Backup modal
     document.getElementById('btn-open-settings')?.addEventListener('click', () => {
       document.getElementById('modal-settings')?.classList.add('open');
@@ -874,19 +883,25 @@ class FinWiseMobile {
     const incEl = document.getElementById('home-total-income');
     const expEl = document.getElementById('home-total-expense');
     const invEl = document.getElementById('home-total-invested');
+    const eyeBtn = document.getElementById('btn-toggle-balance-privacy');
 
-    if (balEl) balEl.textContent = this.formatCurrency(totals.totalLiquidBalance);
+    if (balEl) {
+      balEl.textContent = this.balanceHidden ? '₹ ••••••' : this.formatCurrency(totals.totalLiquidBalance);
+    }
+    if (eyeBtn) {
+      eyeBtn.textContent = this.balanceHidden ? '🙈' : '👁️';
+    }
     if (incEl) incEl.textContent = '+' + this.formatCurrency(totals.totalIncome);
     if (expEl) expEl.textContent = '-' + this.formatCurrency(totals.totalExpense);
     if (invEl) invEl.textContent = this.formatCurrency(totals.totalInvested);
 
-    // Bank Theme Gradients
+    // Bank Themes (Refined Metal Card Look)
     const BANK_THEMES = {
-      'SBI': { bg: 'linear-gradient(135deg, #0f2b5c 0%, #1e40af 100%)', border: 'rgba(59, 130, 246, 0.5)', icon: '🏛️' },
-      'CBI': { bg: 'linear-gradient(135deg, #2e1065 0%, #4f46e5 100%)', border: 'rgba(99, 102, 241, 0.5)', icon: '🏦' },
-      'BOB': { bg: 'linear-gradient(135deg, #431407 0%, #c2410c 100%)', border: 'rgba(234, 88, 12, 0.5)', icon: '🦁' },
-      'Kotak': { bg: 'linear-gradient(135deg, #450a0a 0%, #b91c1c 100%)', border: 'rgba(239, 68, 68, 0.5)', icon: '🔴' },
-      'Cash Wallet': { bg: 'linear-gradient(135deg, #022c22 0%, #047857 100%)', border: 'rgba(16, 185, 129, 0.5)', icon: '💵' }
+      'SBI': { bg: 'linear-gradient(135deg, #091a38 0%, #152e5a 50%, #1d4ed8 100%)', border: 'rgba(59, 130, 246, 0.4)', icon: '🏛️' },
+      'CBI': { bg: 'linear-gradient(135deg, #1b124a 0%, #2f2275 50%, #4f46e5 100%)', border: 'rgba(99, 102, 241, 0.4)', icon: '🏦' },
+      'BOB': { bg: 'linear-gradient(135deg, #2c1206 0%, #52200a 50%, #ea580c 100%)', border: 'rgba(234, 88, 12, 0.4)', icon: '🦁' },
+      'Kotak': { bg: 'linear-gradient(135deg, #2b0b0b 0%, #541414 50%, #dc2626 100%)', border: 'rgba(239, 68, 68, 0.4)', icon: '🔴' },
+      'Cash Wallet': { bg: 'linear-gradient(135deg, #04251d 0%, #08493a 50%, #059669 100%)', border: 'rgba(16, 185, 129, 0.4)', icon: '💵' }
     };
 
     // Render Accounts Carousel (ATM Card Style)
@@ -895,8 +910,8 @@ class FinWiseMobile {
       const balances = this.getAccountBalances();
       carousel.innerHTML = balances.map(acc => {
         const theme = BANK_THEMES[acc.name] || {
-          bg: 'linear-gradient(135deg, #1e293b 0%, #334155 100%)',
-          border: 'rgba(255, 255, 255, 0.15)',
+          bg: 'linear-gradient(135deg, #141724 0%, #232a3d 100%)',
+          border: 'rgba(255, 255, 255, 0.12)',
           icon: '💳'
         };
         const isLow = acc.currentBalance < 1000;
@@ -904,13 +919,19 @@ class FinWiseMobile {
         return `
           <div class="mini-acc-card" style="background:${theme.bg}; border:1px solid ${theme.border};" onclick="window.app.quickAddForAccount('${acc.id}')">
             <div class="mini-acc-top">
-              <span style="font-size:18px;">${theme.icon}</span>
-              <span class="mini-acc-type" style="color:rgba(255,255,255,0.7);">${acc.type}</span>
+              <div style="display:flex; align-items:center; gap:6px;">
+                <span style="font-size:16px;">${theme.icon}</span>
+                <span class="mini-acc-name" style="color:#ffffff; font-weight:800; font-size:0.92rem; margin:0;">${acc.name}</span>
+              </div>
+              <span style="font-size:12px; color:rgba(255,255,255,0.65); letter-spacing:1px; font-weight:700;">(((•)))</span>
             </div>
-            <div>
-              <div class="mini-acc-name" style="color:#ffffff;">${acc.name}</div>
-              <div class="mini-acc-bal ${isLow ? 'low' : ''}">${this.formatCurrency(acc.currentBalance)}</div>
-              <div style="font-size:11px; color:rgba(255,255,255,0.7); margin-top:4px; font-weight:700;">+ Tap to Add</div>
+            <div style="margin:8px 0 6px;">
+              <div style="width:26px; height:18px; background:linear-gradient(135deg, #fbbf24 0%, #d97706 100%); border-radius:3px; opacity:0.85; margin-bottom:6px; box-shadow:inset 0 0 2px rgba(0,0,0,0.5);"></div>
+              <div class="mini-acc-bal ${isLow ? 'low' : ''}" style="font-size:1.15rem; font-weight:900; letter-spacing:-0.02em;">${this.formatCurrency(acc.currentBalance)}</div>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span class="mini-acc-type" style="color:rgba(255,255,255,0.7); font-size:0.68rem; font-weight:700;">${acc.type}</span>
+              <span style="font-size:10px; background:rgba(255,255,255,0.18); backdrop-filter:blur(4px); padding:2px 8px; border-radius:99px; color:#fff; font-weight:700;">+ ADD</span>
             </div>
           </div>
         `;
@@ -1626,12 +1647,14 @@ class FinWiseMobile {
     const emailEl = document.getElementById('user-display-email');
     const avatarEl = document.getElementById('user-avatar-circle');
     const lastSyncEl = document.getElementById('label-last-sync');
+    const headerStatus = document.getElementById('header-user-status');
 
     if (this.user) {
       if (loggedOutBox) loggedOutBox.style.display = 'none';
       if (loggedInBox) loggedInBox.style.display = 'block';
       if (nameEl) nameEl.textContent = this.user.name || 'User';
       if (emailEl) emailEl.textContent = this.user.email || '';
+      if (headerStatus) headerStatus.textContent = this.user.name || this.user.email || 'Google Synced';
       if (avatarEl) {
         const initial = (this.user.name || this.user.email || 'U').charAt(0).toUpperCase();
         avatarEl.textContent = initial;
@@ -1642,6 +1665,7 @@ class FinWiseMobile {
     } else {
       if (loggedOutBox) loggedOutBox.style.display = 'block';
       if (loggedInBox) loggedInBox.style.display = 'none';
+      if (headerStatus) headerStatus.textContent = 'Personal Finance';
     }
   }
 

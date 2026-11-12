@@ -1,28 +1,36 @@
 :root {
-  /* Premium Dark Theme (CRED & Apple Wallet inspired) */
-  --bg-app: #080c14;
-  --bg-surface: #101726;
-  --bg-card: #151f33;
-  --bg-card-hover: #1c2944;
+  /* Premium Dark Theme (Obsidian & Platinum - Human Fintech) */
+  --bg-app: #090a0f;
+  --bg-surface: #12151f;
+  --bg-card: #161b26;
+  --bg-card-hover: #1e2433;
   --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-card: rgba(255, 255, 255, 0.09);
   --border-active: #6366f1;
   
-  --text-main: #ffffff;
+  --header-bg: rgba(9, 10, 15, 0.88);
+  --header-border: rgba(255, 255, 255, 0.06);
+
+  --text-main: #f8fafc;
   --text-sub: #cbd5e1;
-  --text-muted: #94a3b8;
-  --text-dim: #64748b;
+  --text-muted: #8b9bb4;
+  --text-dim: #55627a;
   
   --income: #10b981;
-  --income-bg: rgba(16, 185, 129, 0.16);
+  --income-bg: rgba(16, 185, 129, 0.12);
   --expense: #f43f5e;
-  --expense-bg: rgba(244, 63, 94, 0.16);
-  --invest: #8b5cf6;
-  --invest-bg: rgba(139, 92, 246, 0.16);
+  --expense-bg: rgba(244, 63, 94, 0.12);
+  --invest: #a855f7;
+  --invest-bg: rgba(168, 85, 247, 0.12);
   --transfer: #3b82f6;
-  --transfer-bg: rgba(59, 130, 246, 0.16);
+  --transfer-bg: rgba(59, 130, 246, 0.12);
   --gold: #f59e0b;
-  --gold-bg: rgba(245, 158, 11, 0.16);
+  --gold-bg: rgba(245, 158, 11, 0.12);
   
+  --net-worth-bg: linear-gradient(145deg, #151827 0%, #0d101a 100%);
+  --net-worth-border: rgba(99, 102, 241, 0.28);
+  --net-worth-glow: 0 16px 36px rgba(0, 0, 0, 0.5);
+
   --primary: #6366f1;
   --primary-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
   --accent-glow: 0 8px 24px rgba(99, 102, 241, 0.35);
@@ -37,15 +45,32 @@
 }
 
 [data-theme="light"] {
-  --bg-app: #f8fafc;
+  /* Clean Human Light Theme (Apple & Linear inspired) */
+  --bg-app: #f6f8fa;
   --bg-surface: #ffffff;
   --bg-card: #ffffff;
-  --bg-card-hover: #f1f5f9;
-  --border-subtle: #e2e8f0;
+  --bg-card-hover: #f3f4f6;
+  --border-subtle: #e5e7eb;
+  --border-card: #e2e8f0;
+  
+  --header-bg: rgba(246, 248, 250, 0.92);
+  --header-border: #e2e8f0;
+
   --text-main: #0f172a;
   --text-sub: #334155;
   --text-muted: #64748b;
   --text-dim: #94a3b8;
+
+  --income: #059669;
+  --income-bg: rgba(5, 150, 105, 0.1);
+  --expense: #e11d48;
+  --expense-bg: rgba(225, 29, 72, 0.1);
+  --invest: #7c3aed;
+  --invest-bg: rgba(124, 58, 237, 0.1);
+
+  --net-worth-bg: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+  --net-worth-border: #e2e8f0;
+  --net-worth-glow: 0 8px 24px rgba(0, 0, 0, 0.05);
 }
 
 * {
@@ -112,48 +137,70 @@ body {
   position: sticky;
   top: 0;
   z-index: 50;
-  background: rgba(8, 12, 20, 0.92);
+  background: var(--header-bg);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border-bottom: 1px solid var(--border-subtle);
+  border-bottom: 1px solid var(--header-border);
   padding: 14px 18px;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  transition: background 0.2s ease, border-color 0.2s ease;
 }
 
-.header-user {
+.header-brand {
   display: flex;
   align-items: center;
   gap: 12px;
 }
 
-.header-avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: var(--radius-sm);
-  background: var(--primary-gradient);
+.brand-logo-badge {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 800;
-  font-size: 20px;
-  color: #fff;
-  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.45);
+  font-weight: 900;
+  font-size: 14px;
+  color: #ffffff;
+  letter-spacing: -0.02em;
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.35);
 }
 
-.header-title-box h1 {
+.brand-meta {
+  display: flex;
+  flex-direction: column;
+}
+
+.brand-title-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.brand-app-name {
   font-size: 1.15rem;
   font-weight: 800;
-  letter-spacing: -0.02em;
-  color: #fff;
+  letter-spacing: -0.03em;
+  color: var(--text-main);
   line-height: 1.2;
 }
 
-.header-title-box span {
-  font-size: 0.8rem;
+.brand-status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.6);
+}
+
+.brand-subtext {
+  font-size: 0.74rem;
   color: var(--text-muted);
-  font-weight: 500;
+  font-weight: 600;
+  letter-spacing: 0.01em;
 }
 
 .header-actions {
@@ -174,7 +221,8 @@ body {
   justify-content: center;
   font-size: 16px;
   cursor: pointer;
-  transition: transform 0.1s;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  transition: transform 0.1s, background-color 0.15s;
 }
 .icon-btn:active {
   transform: scale(0.92);
@@ -204,29 +252,18 @@ body {
 }
 
 /* ============================================================ */
-/* NET WORTH HERO BANNER                                        */
+/* MAIN BALANCE / NET WORTH HERO CARD                            */
 /* ============================================================ */
 .net-worth-card {
-  background: linear-gradient(135deg, #1e1b4b 0%, #0f172a 100%);
-  border: 1px solid rgba(99, 102, 241, 0.35);
+  background: var(--net-worth-bg);
+  border: 1px solid var(--net-worth-border);
   border-radius: var(--radius-lg);
-  padding: 22px 20px;
+  padding: 20px 20px 18px;
   margin-bottom: 22px;
   position: relative;
   overflow: hidden;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
-}
-
-.net-worth-card::after {
-  content: "";
-  position: absolute;
-  top: -50px;
-  right: -50px;
-  width: 150px;
-  height: 150px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(139, 92, 246, 0.35) 0%, transparent 70%);
-  pointer-events: none;
+  box-shadow: var(--net-worth-glow);
+  transition: background 0.2s ease, border-color 0.2s ease;
 }
 
 .nw-top {
@@ -236,48 +273,93 @@ body {
   margin-bottom: 8px;
 }
 
+.nw-label-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .nw-label {
-  font-size: 0.82rem;
-  color: #a5b4fc;
+  font-size: 0.78rem;
+  color: var(--text-muted);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
 }
 
-.nw-tag {
-  font-size: 0.74rem;
-  padding: 4px 10px;
+.nw-eye-btn {
+  background: transparent;
+  border: none;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 2px 4px;
+  opacity: 0.75;
+  transition: opacity 0.15s;
+  display: flex;
+  align-items: center;
+}
+.nw-eye-btn:hover {
+  opacity: 1;
+}
+
+.nw-pill-status {
+  font-size: 0.72rem;
+  padding: 3px 9px;
   border-radius: var(--radius-full);
-  background: rgba(16, 185, 129, 0.22);
-  color: #34d399;
+  background: var(--income-bg);
+  color: var(--income);
   font-weight: 700;
   letter-spacing: 0.02em;
 }
 
 .nw-balance {
-  font-size: 2.35rem;
+  font-size: 2.45rem;
   font-weight: 900;
   letter-spacing: -0.03em;
-  color: #ffffff;
-  margin-bottom: 18px;
-  line-height: 1.1;
+  color: var(--text-main);
+  line-height: 1.15;
+  margin-bottom: 16px;
+  font-variant-numeric: tabular-nums;
 }
 
 .nw-stats-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 10px;
-  padding-top: 14px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
 }
 
 .nw-stat-item {
   display: flex;
   flex-direction: column;
+  flex: 1;
+  text-align: center;
+}
+
+.nw-stat-divider {
+  width: 1px;
+  height: 24px;
+  background: var(--border-subtle);
 }
 
 .nw-stat-title {
-  font-size: 0.74rem;
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.nw-stat-val {
+  font-size: 0.95rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+.nw-stat-val.inc { color: var(--income); }
+.nw-stat-val.exp { color: var(--expense); }
+.nw-stat-val.inv { color: var(--invest); }
   color: #94a3b8;
   margin-bottom: 4px;
   font-weight: 600;
@@ -337,18 +419,19 @@ body {
 }
 
 .mini-acc-card {
-  flex: 0 0 160px;
+  flex: 0 0 175px;
+  min-height: 120px;
   scroll-snap-align: start;
-  background: var(--bg-card);
-  border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
   padding: 16px 14px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   cursor: pointer;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
-  transition: transform 0.15s, border-color 0.15s;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.15s ease;
 }
 .mini-acc-card:active {
   transform: scale(0.96);

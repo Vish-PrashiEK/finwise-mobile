@@ -1,8 +1,8 @@
 /**
- * FinWise Mobile - Service Worker v7 (Protected Reset, Auto-Backup & Data Recovery)
+ * FinWise Mobile - Service Worker v8 (Clean Human Fintech UI & Privacy Toggle)
  */
 
-const CACHE_NAME = 'finwise-cache-v7';
+const CACHE_NAME = 'finwise-cache-v8';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',

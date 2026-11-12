@@ -13,19 +13,23 @@
 </head>
 <body>
   <div class="mobile-app-shell">
-    <!-- Top Mobile Header -->
+    <!-- Top Mobile Header (Clean Human Fintech Style) -->
     <header class="mobile-header">
-      <div class="header-user">
-        <div class="header-avatar">₹</div>
-        <div class="header-title-box">
-          <h1>FinWise Mobile</h1>
-          <span id="current-month-label">October 2026 • Real-Time</span>
+      <div class="header-brand">
+        <div class="brand-logo-badge">
+          <span>FW</span>
+        </div>
+        <div class="brand-meta">
+          <div class="brand-title-row">
+            <span class="brand-app-name">FinWise</span>
+            <span class="brand-status-dot" title="Active & Synced"></span>
+          </div>
+          <span class="brand-subtext" id="header-user-status">Personal Finance</span>
         </div>
       </div>
       <div class="header-actions">
-        <button class="icon-btn" id="btn-theme-toggle" title="Theme">☀️</button>
-        <button class="icon-btn" id="btn-open-settings" title="Settings & Backup">⚙️</button>
-        <button class="icon-btn" id="btn-export-quick" title="Export CSV">📥</button>
+        <button class="icon-btn" id="btn-theme-toggle" title="Toggle Theme" aria-label="Toggle Theme">☀️</button>
+        <button class="icon-btn" id="btn-open-settings" title="Settings & Sync" aria-label="Settings">⚙️</button>
       </div>
     </header>
 
@@ -33,24 +37,29 @@
     <main class="mobile-content">
       <!-- ================= TAB 1: HOME ================= -->
       <section id="tab-home" class="tab-view active">
-        <!-- Main Net Worth Card -->
+        <!-- Main Balance Card (Apple Wallet / CRED Style) -->
         <div class="net-worth-card">
           <div class="nw-top">
-            <span class="nw-label">Kul Real-Time Balance</span>
-            <span class="nw-tag">Live Synced</span>
+            <div class="nw-label-group">
+              <span class="nw-label">Total Balance</span>
+              <button type="button" class="nw-eye-btn" id="btn-toggle-balance-privacy" title="Hide/Show Balance">👁️</button>
+            </div>
+            <span class="nw-pill-status">Offline-First</span>
           </div>
           <div class="nw-balance" id="home-total-balance">₹0</div>
           <div class="nw-stats-row">
             <div class="nw-stat-item">
-              <span class="nw-stat-title">Kamai (In)</span>
+              <span class="nw-stat-title">Income</span>
               <span class="nw-stat-val inc" id="home-total-income">+₹0</span>
             </div>
+            <div class="nw-stat-divider"></div>
             <div class="nw-stat-item">
-              <span class="nw-stat-title">Kharcha (Out)</span>
+              <span class="nw-stat-title">Expenses</span>
               <span class="nw-stat-val exp" id="home-total-expense">-₹0</span>
             </div>
+            <div class="nw-stat-divider"></div>
             <div class="nw-stat-item">
-              <span class="nw-stat-title">Nivesh (Invest)</span>
+              <span class="nw-stat-title">Investments</span>
               <span class="nw-stat-val inv" id="home-total-invested">₹0</span>
             </div>
           </div>
