@@ -1,0 +1,8 @@
+{
+  "appId": "com.finwise.mobile",
+  "appName": "FinWise",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https"
+  }
+}

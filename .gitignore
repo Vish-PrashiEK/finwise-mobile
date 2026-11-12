@@ -3,4 +3,9 @@ node_modules/
 Thumbs.db
 *.log
 .env
+android/.gradle/
+android/app/build/
+android/build/
+android/local.properties
+www/
 

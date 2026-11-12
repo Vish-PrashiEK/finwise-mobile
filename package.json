@@ -4,7 +4,9 @@
   "description": "Smart Multi-Account Expense, Investment and Balance Tracker",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "sync": "npx cap sync android",
+    "build:apk": "powershell -Command \"$env:JAVA_HOME = 'C:\\Program Files\\Android\\Android Studio\\jbr'; cd android; .\\gradlew.bat assembleDebug; Copy-Item app\\build\\outputs\\apk\\debug\\app-debug.apk ..\\FinWise-Mobile.apk\""
   },
   "keywords": [
     "expense-tracker",
@@ -13,6 +15,10 @@
     "multi-account"
   ],
   "author": "",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "@capacitor/android": "^8.6.0",
+    "@capacitor/cli": "^8.6.0",
+    "@capacitor/core": "^8.6.0"
+  }
 }
-
