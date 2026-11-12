@@ -1,8 +1,8 @@
 /**
- * FinWise Mobile - Service Worker v8 (Clean Human Fintech UI & Privacy Toggle)
+ * FinWise Mobile - Service Worker v9 (Top Status Bar & Notch Safe Area Spacing)
  */
 
-const CACHE_NAME = 'finwise-cache-v8';
+const CACHE_NAME = 'finwise-cache-v9';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',

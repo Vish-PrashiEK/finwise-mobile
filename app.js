@@ -176,6 +176,7 @@ class FinWiseMobile {
   initTheme() {
     const saved = localStorage.getItem(STORAGE_KEYS.THEME) || 'dark';
     document.documentElement.setAttribute('data-theme', saved);
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', saved === 'dark' ? '#090a0f' : '#f6f8fa');
     const btn = document.getElementById('btn-theme-toggle');
     if (btn) btn.textContent = saved === 'dark' ? '☀️' : '🌙';
   }
@@ -184,6 +185,7 @@ class FinWiseMobile {
     const cur = document.documentElement.getAttribute('data-theme') || 'dark';
     const next = cur === 'dark' ? 'light' : 'dark';
     document.documentElement.setAttribute('data-theme', next);
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', next === 'dark' ? '#090a0f' : '#f6f8fa');
     localStorage.setItem(STORAGE_KEYS.THEME, next);
     const btn = document.getElementById('btn-theme-toggle');
     if (btn) btn.textContent = next === 'dark' ? '☀️' : '🌙';
